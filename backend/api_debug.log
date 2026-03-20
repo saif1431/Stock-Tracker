@@ -1,0 +1,95 @@
+DEBUG:root:RAW REGISTRATION BODY: 
+ERROR:root:REGISTRATION FAILED EARLY: Expecting value: line 1 column 1 (char 0)
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): www.alphavantage.co:443
+DEBUG:urllib3.connectionpool:https://www.alphavantage.co:443 "GET /query?function=TIME_SERIES_DAILY&symbol=AAPL&apikey=8I91PEKX5O1Q2021 HTTP/1.1" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): www.alphavantage.co:443
+DEBUG:urllib3.connectionpool:https://www.alphavantage.co:443 "GET /query?function=TIME_SERIES_DAILY&symbol=AAPL&apikey=8I91PEKX5O1Q2021 HTTP/1.1" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): www.alphavantage.co:443
+DEBUG:urllib3.connectionpool:https://www.alphavantage.co:443 "GET /query?function=TIME_SERIES_DAILY&symbol=AAPL&apikey=8I91PEKX5O1Q2021 HTTP/1.1" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): www.alphavantage.co:443
+DEBUG:urllib3.connectionpool:https://www.alphavantage.co:443 "GET /query?function=TIME_SERIES_DAILY&symbol=AAPL&apikey=8I91PEKX5O1Q2021 HTTP/1.1" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): www.alphavantage.co:443
+DEBUG:urllib3.connectionpool:https://www.alphavantage.co:443 "GET /query?function=TIME_SERIES_DAILY&symbol=AAPL&apikey=8I91PEKX5O1Q2021 HTTP/1.1" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): www.alphavantage.co:443
+DEBUG:urllib3.connectionpool:https://www.alphavantage.co:443 "GET /query?function=TIME_SERIES_DAILY&symbol=AAPL&apikey=8I91PEKX5O1Q2021 HTTP/1.1" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): www.alphavantage.co:443
+DEBUG:urllib3.connectionpool:https://www.alphavantage.co:443 "GET /query?function=TIME_SERIES_DAILY&symbol=AAPL&apikey=8I91PEKX5O1Q2021 HTTP/1.1" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): www.alphavantage.co:443
+DEBUG:urllib3.connectionpool:https://www.alphavantage.co:443 "GET /query?function=TIME_SERIES_DAILY&symbol=AAPL&apikey=8I91PEKX5O1Q2021 HTTP/1.1" 200 None
+DEBUG:python_multipart.multipart:Calling on_part_begin with no data
+DEBUG:python_multipart.multipart:Calling on_header_field with data[42:61]
+DEBUG:python_multipart.multipart:Calling on_header_value with data[63:89]
+DEBUG:python_multipart.multipart:Calling on_header_end with no data
+DEBUG:python_multipart.multipart:Calling on_headers_finished with no data
+DEBUG:python_multipart.multipart:Calling on_part_data with data[93:109]
+DEBUG:python_multipart.multipart:Calling on_part_end with no data
+DEBUG:python_multipart.multipart:Calling on_part_begin with no data
+DEBUG:python_multipart.multipart:Calling on_header_field with data[153:172]
+DEBUG:python_multipart.multipart:Calling on_header_value with data[174:200]
+DEBUG:python_multipart.multipart:Calling on_header_end with no data
+DEBUG:python_multipart.multipart:Calling on_headers_finished with no data
+DEBUG:python_multipart.multipart:Calling on_part_data with data[204:216]
+DEBUG:python_multipart.multipart:Calling on_part_end with no data
+DEBUG:python_multipart.multipart:Calling on_end with no data
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): www.alphavantage.co:443
+DEBUG:urllib3.connectionpool:https://www.alphavantage.co:443 "GET /query?function=TIME_SERIES_DAILY&symbol=AAPL&apikey=8I91PEKX5O1Q2021 HTTP/1.1" 200 None
+DEBUG:root:RAW REGISTRATION BODY: {"username":"saif0","email":"saiffibutt27@gmail.com","password":"0987654"}
+WARNING:passlib.handlers.bcrypt:(trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\Web Projects\StockTrackingDashboard\backend\venv\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+DEBUG:passlib.handlers.bcrypt:detected 'bcrypt' backend, version '<unknown>'
+DEBUG:passlib.handlers.bcrypt:'bcrypt' backend lacks $2$ support, enabling workaround
+DEBUG:root:RAW REGISTRATION BODY: {"username":"saif0","email":"saiffibutt27@gmail.com","password":"saif0987654"}
+WARNING:passlib.handlers.bcrypt:(trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\Web Projects\StockTrackingDashboard\backend\venv\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+DEBUG:passlib.handlers.bcrypt:detected 'bcrypt' backend, version '<unknown>'
+DEBUG:root:RAW REGISTRATION BODY: {"username":"saif0","email":"saiffibutt27@gmail.com","password":"saif0987654"}
+WARNING:passlib.handlers.bcrypt:(trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\Web Projects\StockTrackingDashboard\backend\venv\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+DEBUG:passlib.handlers.bcrypt:detected 'bcrypt' backend, version '<unknown>'
+DEBUG:root:RAW REGISTRATION BODY: {"username":"saif0","email":"saiffibutt27@gmail.com","password":"saif0987654"}
+WARNING:passlib.handlers.bcrypt:(trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\Web Projects\StockTrackingDashboard\backend\venv\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+DEBUG:passlib.handlers.bcrypt:detected 'bcrypt' backend, version '<unknown>'
+DEBUG:passlib.handlers.bcrypt:'bcrypt' backend lacks $2$ support, enabling workaround
+DEBUG:root:RAW REGISTRATION BODY: {"username":"saif0","email":"saiffibutt27@gmail.com","password":"saif0987654"}
+WARNING:passlib.handlers.bcrypt:(trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\Web Projects\StockTrackingDashboard\backend\venv\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+DEBUG:passlib.handlers.bcrypt:detected 'bcrypt' backend, version '<unknown>'
+DEBUG:root:RAW REGISTRATION BODY: {"username":"saif0","email":"saiffibutt27@gmail.com","password":"saif0987654"}
+WARNING:passlib.handlers.bcrypt:(trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\Web Projects\StockTrackingDashboard\backend\venv\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+DEBUG:passlib.handlers.bcrypt:detected 'bcrypt' backend, version '<unknown>'
+DEBUG:passlib.handlers.bcrypt:'bcrypt' backend lacks $2$ support, enabling workaround
+DEBUG:root:RAW REGISTRATION BODY: {"username":"saif0","email":"saiffibutt27@gmail.com","password":"saif0987654"}
+WARNING:passlib.handlers.bcrypt:(trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\Web Projects\StockTrackingDashboard\backend\venv\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+DEBUG:passlib.handlers.bcrypt:detected 'bcrypt' backend, version '<unknown>'
+DEBUG:passlib.handlers.bcrypt:'bcrypt' backend lacks $2$ support, enabling workaround
