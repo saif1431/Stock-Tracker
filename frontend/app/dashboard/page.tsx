@@ -3,6 +3,8 @@
 import React, { useState, useCallback, useEffect } from "react"
 import { SearchStockForm } from "@/components/SearchStockForm"
 import { StockChart } from "@/components/StockChart"
+import { TechnicalIndicators } from "@/components/TechnicalIndicators"
+import { CandlestickChart } from "@/components/CandlestickChart"
 import { stockService, ChartData } from "@/services/stockService"
 import { useStockWebSocket } from "@/hooks/useStockWebSocket"
 import { useAuth } from "@/hooks/useAuth"
@@ -205,6 +207,19 @@ export default function Dashboard() {
               isLoading={isLoading}
               onAddWatchlist={handleAddToWatchlist}
               onBuy={handleAddToPortfolio}
+            />
+
+            {/* Technical Indicators */}
+            <TechnicalIndicators
+              symbol={currentStock}
+              chartData={chartData}
+            />
+
+            {/* Candlestick Chart */}
+            <CandlestickChart
+              symbol={currentStock}
+              days={30}
+              showVolume={true}
             />
           </div>
 

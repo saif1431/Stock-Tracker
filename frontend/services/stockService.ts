@@ -92,4 +92,63 @@ export const stockService = {
   async removeFromPortfolio(symbol: string): Promise<void> {
     await apiClient.delete(`/portfolio/${symbol}`);
   },
+
+  /**
+   * Fetches technical indicators for a stock.
+   * @param symbol The stock symbol
+   * @param indicatorType Type of indicators: 'all', 'sma', 'ema', 'rsi', 'macd', 'bollinger', or 'stochastic'
+   */
+  async getStockIndicators(symbol: string, indicatorType: string = 'all'): Promise<any> {
+    const response = await apiClient.get(`/stock/${symbol}/indicators`, {
+      params: { indicator_type: indicatorType }
+    });
+    return response.data;
+  },
+
+  /**
+   * Get all indicators for a stock (convenience method)
+   */
+  async getAllIndicators(symbol: string): Promise<any> {
+    return this.getStockIndicators(symbol, 'all');
+  },
+
+  /**
+   * Get SMA indicators (20, 50, 200)
+   */
+  async getSMAIndicators(symbol: string): Promise<any> {
+    return this.getStockIndicators(symbol, 'sma');
+  },
+
+  /**
+   * Get RSI indicator
+   */
+  async getRSIIndicator(symbol: string): Promise<any> {
+    return this.getStockIndicators(symbol, 'rsi');
+  },
+
+  /**
+   * Get MACD indicator
+   */
+  async getMACDIndicator(symbol: string): Promise<any> {
+    return this.getStockIndicators(symbol, 'macd');
+  },
+
+  /**
+   * Get Bollinger Bands indicator
+   */
+  async getBollingerIndicator(symbol: string): Promise<any> {
+    return this.getStockIndicators(symbol, 'bollinger');
+  },
+
+  /**
+   * Fetches OHLC candlestick data for a stock
+   * @param symbol The stock symbol
+   * @param days Number of days (1-365)
+   */
+  async getCandleData(symbol: string, days: number = 30): Promise<any> {
+    const response = await apiClient.get(`/stock/${symbol}/candlestick`, {
+      params: { days }
+    });
+    return response.data;
+  },
 };

@@ -1,0 +1,22 @@
+# Markdown files
+*.md
+
+# Backend
+backend/__pycache__/
+backend/.env
+backend/.venv
+backend/venv
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/dist/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store

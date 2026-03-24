@@ -105,3 +105,45 @@ def get_daily_stock_data(symbol: str, db: Session) -> Dict[str, Any]:
         stock.last_fetched = func.now()
         db.commit()
         return data
+
+
+def get_candlestick_data(symbol: str, db: Session, days: int = 30) -> Dict[str, Any]:
+    """
+    Extracts OHLC data from daily stock data for candlestick charts.
+    
+    Args:
+        symbol: Stock symbol (e.g., 'AAPL')
+        db: Database session
+        days: Number of days of data to return (default 30)
+    
+    Returns:
+        Dict with candlestick data formatted for charting
+    """
+    data = get_daily_stock_data(symbol, db)
+    time_series = data.get("Time Series (Daily)", {})
+    
+    candlestick_data = []
+    
+    # Sort dates in ascending order and take last N days
+    sorted_dates = sorted(time_series.keys())
+    selected_dates = sorted_dates[-days:] if len(sorted_dates) > days else sorted_dates
+    
+    for date in selected_dates:
+        ohlc = time_series[date]
+        candlestick_data.append({
+            "date": date,
+            "open": float(ohlc.get("1. open", 0)),
+            "high": float(ohlc.get("2. high", 0)),
+            "low": float(ohlc.get("3. low", 0)),
+            "close": float(ohlc.get("4. close", 0)),
+            "volume": int(ohlc.get("5. volume", 0))
+        })
+    
+    return {
+        "meta": {
+            "symbol": symbol,
+            "last_refreshed": data.get("Meta Data", {}).get("3. Last Refreshed", ""),
+            "data_points": len(candlestick_data)
+        },
+        "candlesticks": candlestick_data
+    }
