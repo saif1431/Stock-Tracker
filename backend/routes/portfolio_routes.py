@@ -2,10 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from database.database import get_db
 from models.portfolio import Portfolio
+from models.transaction import Transaction, TransactionType
 from models.user import User
 from schemas.portfolio_schema import PortfolioCreate, PortfolioResponse, PortfolioUpdate
 from routes.auth_utils import get_current_user
 from services.stock_service import get_daily_stock_data
+from datetime import datetime
 from typing import List
 
 router = APIRouter(prefix="/portfolio", tags=["portfolio"])
@@ -78,6 +80,19 @@ def add_to_portfolio(
         db.commit()
         db.refresh(db_item)
         
+        # Log transaction
+        transaction = Transaction(
+            user_id=current_user.id,
+            symbol=portfolio.symbol.upper(),
+            transaction_type=TransactionType.BUY,
+            quantity=portfolio.quantity,
+            price_per_share=portfolio.average_price,
+            total_value=portfolio.quantity * portfolio.average_price,
+            transaction_date=datetime.utcnow()
+        )
+        db.add(transaction)
+        db.commit()
+        
         current_price = get_current_stock_price(db_item.symbol, db)
         total_invested = db_item.average_price * db_item.quantity
         current_value = current_price * db_item.quantity
@@ -112,6 +127,19 @@ def add_to_portfolio(
     db.commit()
     db.refresh(new_item)
     
+    # Log transaction
+    transaction = Transaction(
+        user_id=current_user.id,
+        symbol=portfolio.symbol.upper(),
+        transaction_type=TransactionType.BUY,
+        quantity=portfolio.quantity,
+        price_per_share=portfolio.average_price,
+        total_value=portfolio.quantity * portfolio.average_price,
+        transaction_date=datetime.utcnow()
+    )
+    db.add(transaction)
+    db.commit()
+    
     current_price = get_current_stock_price(new_item.symbol, db)
     total_invested = new_item.average_price * new_item.quantity
     current_value = current_price * new_item.quantity
@@ -142,6 +170,19 @@ def remove_from_portfolio(
 
     if not db_item:
         raise HTTPException(status_code=404, detail="Stock not found in portfolio")
+    
+    # Log sell transaction before deleting
+    transaction = Transaction(
+        user_id=current_user.id,
+        symbol=symbol.upper(),
+        transaction_type=TransactionType.SELL,
+        quantity=db_item.quantity,
+        price_per_share=db_item.average_price,
+        total_value=db_item.quantity * db_item.average_price,
+        transaction_date=datetime.utcnow()
+    )
+    db.add(transaction)
+    db.commit()
 
     db.delete(db_item)
     db.commit()

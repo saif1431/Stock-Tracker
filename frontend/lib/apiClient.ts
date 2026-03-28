@@ -1,14 +1,15 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+import { handleAPIError, APIError, is401Error } from './errorHandler';
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 seconds
+  timeout: 30000, // 30 seconds (increased from 10 for heavy calculations)
 });
 
-// Add a request interceptor (optional, e.g., for auth)
+// Request interceptor
 apiClient.interceptors.request.use(
   (config) => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -18,19 +19,33 @@ apiClient.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.error('Request error:', error);
     return Promise.reject(error);
   }
 );
 
-// Add a response interceptor (optional, e.g., for global error handling)
+// Response interceptor
 apiClient.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
-    // Handle global errors here
-    console.error('API Error:', error.response?.data || error.message);
-    return Promise.reject(error);
+  (error: AxiosError) => {
+    // Convert to APIError for consistent error handling
+    const apiError = handleAPIError(error);
+    
+    // Log error for monitoring
+    console.error('API Error:', apiError);
+    
+    // Handle 401 Unauthorized - redirect to login
+    if (is401Error(apiError)) {
+      console.warn('401 Unauthorized - redirecting to login');
+      localStorage.removeItem('token');
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+    }
+
+    return Promise.reject(apiError);
   }
 );
 

@@ -5,7 +5,9 @@ import { SearchStockForm } from "@/components/SearchStockForm"
 import { StockChart } from "@/components/StockChart"
 import { TechnicalIndicators } from "@/components/TechnicalIndicators"
 import { CandlestickChart } from "@/components/CandlestickChart"
-import { stockService, ChartData } from "@/services/stockService"
+import { CreateAlertDialog } from "@/components/CreateAlertDialog"
+import { AlertsList } from "@/components/AlertsList"
+import { stockService, ChartData, StockData } from "@/services/stockService"
 import { useStockWebSocket } from "@/hooks/useStockWebSocket"
 import { useAuth } from "@/hooks/useAuth"
 import { useRouter } from "next/navigation"
@@ -20,6 +22,22 @@ interface WatchlistItem {
   price: number
   change: number
   changePercent: number
+}
+
+interface ApiError {
+  response?: {
+    data?: {
+      detail?: string
+    }
+  }
+}
+
+function getErrorMessage(error: unknown): string {
+  if (typeof error === 'object' && error !== null && 'response' in error) {
+    const apiError = error as ApiError
+    return apiError.response?.data?.detail || 'An error occurred'
+  }
+  return 'An error occurred'
 }
 
 // Mock data for demonstration
@@ -51,6 +69,8 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(false)
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([])
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([])
+  const [showCreateAlertDialog, setShowCreateAlertDialog] = useState(false)
+  const [alertsRefreshTrigger, setAlertsRefreshTrigger] = useState(0)
 
   // Fetch initial data
   useEffect(() => {
@@ -63,15 +83,14 @@ export default function Dashboard() {
         
         setWatchlist(watchlistData.map(item => ({
           symbol: item.symbol,
-          price: item.price || 0,
-          change: item.change || 0,
-          changePercent: item.changePercent || 0
+          price: item.current_price || 0,
+          change: item.daily_change || 0,
+          changePercent: item.daily_change_percent || 0
         })))
         
         setPortfolio(portfolioData)
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error)
-        showToast("Failed to load dashboard data", "error")
       }
     }
     
@@ -81,9 +100,9 @@ export default function Dashboard() {
   }, [])
 
   // Set up WebSocket for real-time updates
-  const { isConnected } = useStockWebSocket(currentStock, useCallback((data: any) => {
-    if (data && !data.error) {
-      const transformedData = stockService.transformStockData(data)
+  const { isConnected } = useStockWebSocket(currentStock, useCallback((data: StockData | { error: unknown }) => {
+    if (data && !('error' in data)) {
+      const transformedData = stockService.transformStockData(data as StockData)
       setChartData(transformedData)
     }
   }, []))
@@ -96,9 +115,9 @@ export default function Dashboard() {
       setCurrentStock(symbol)
       setChartData(transformedData)
       showToast(`Loaded ${symbol} successfully`, "success")
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching stock data:", error)
-      showToast(error.response?.data?.detail || "Failed to fetch stock data", "error")
+      showToast(getErrorMessage(error) || "Failed to fetch stock data", "error")
     } finally {
       setIsLoading(false)
     }
@@ -110,13 +129,14 @@ export default function Dashboard() {
       const data = await stockService.getWatchlist()
       setWatchlist(data.map(item => ({
         symbol: item.symbol,
-        price: item.price || 0,
-        change: item.change || 0,
-        changePercent: item.changePercent || 0
+        price: item.current_price || 0,
+        change: item.daily_change || 0,
+        changePercent: item.daily_change_percent || 0
       })))
       showToast(`${currentStock} added to watchlist`, "success")
-    } catch (error: any) {
-      showToast(error.response?.data?.detail || "Failed to add to watchlist", "error")
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error)
+      showToast(errorMessage || "Failed to add to watchlist", "error")
     }
   }, [currentStock, showToast])
 
@@ -129,20 +149,22 @@ export default function Dashboard() {
       await stockService.removeFromWatchlist(symbol)
       setWatchlist((prev) => prev.filter((item) => item.symbol !== symbol))
       showToast(`${symbol} removed from watchlist`, "success")
-    } catch (error: any) {
-      showToast(error.response?.data?.detail || "Failed to remove from watchlist", "error")
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error)
+      showToast(errorMessage || "Failed to remove from watchlist", "error")
     }
-  }, [])
+  }, [showToast])
 
   const handleRemoveFromPortfolio = useCallback(async (symbol: string) => {
     try {
       await stockService.removeFromPortfolio(symbol)
       setPortfolio((prev) => prev.filter((item) => item.symbol !== symbol))
       showToast(`${symbol} sold/removed from portfolio`, "success")
-    } catch (error: any) {
-      showToast(error.response?.data?.detail || "Failed to remove from portfolio", "error")
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error)
+      showToast(errorMessage || "Failed to remove from portfolio", "error")
     }
-  }, [])
+  }, [showToast ])
 
   const handleAddToPortfolio = useCallback(async (quantity: number, price: number) => {
     try {
@@ -150,13 +172,15 @@ export default function Dashboard() {
       const data = await stockService.getPortfolio()
       setPortfolio(data)
       showToast(`Bought ${quantity} shares of ${currentStock}`, "success")
-    } catch (error: any) {
-      showToast(error.response?.data?.detail || "Failed to buy stock", "error")
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error)
+      showToast(errorMessage || "Failed to buy stock", "error")
     }
-  }, [currentStock])
+  }, [currentStock, showToast])
 
   if (loading) {
     return (
+
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-10 h-10 text-primary animate-spin" />
       </div>
@@ -184,10 +208,20 @@ export default function Dashboard() {
                 <p className="text-muted-foreground">Track stocks and manage your watchlist</p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" onClick={logout} className="text-muted-foreground hover:text-destructive gap-2">
-              <LogOut className="w-4 h-4" />
-              Logout
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => router.push('/transactions')}
+                className="gap-2"
+              >
+                📊 Transactions
+              </Button>
+              <Button variant="ghost" size="sm" onClick={logout} className="text-muted-foreground hover:text-destructive gap-2">
+                <LogOut className="w-4 h-4" />
+                Logout
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -221,6 +255,29 @@ export default function Dashboard() {
               days={30}
               showVolume={true}
             />
+
+            {/* Price Alerts Section */}
+            <div className="space-y-4">
+              {showCreateAlertDialog ? (
+                <CreateAlertDialog
+                  symbol={currentStock}
+                  onAlertCreated={() => {
+                    setShowCreateAlertDialog(false)
+                    setAlertsRefreshTrigger(prev => prev + 1)
+                    showToast(`Alert created for ${currentStock}`, "success")
+                  }}
+                  onClose={() => setShowCreateAlertDialog(false)}
+                />
+              ) : (
+                <Button 
+                  onClick={() => setShowCreateAlertDialog(true)}
+                  className="w-full"
+                >
+                  🔔 Create Price Alert for {currentStock}
+                </Button>
+              )}
+              <AlertsList refreshTrigger={alertsRefreshTrigger} />
+            </div>
           </div>
 
           {/* Sidebar */}

@@ -15,6 +15,10 @@ class User(Base):
     watchlist_items = relationship("Watchlist", back_populates="user", cascade="all, delete-orphan")
     # Relationship to Portfolio
     portfolio_items = relationship("Portfolio", back_populates="user", cascade="all, delete-orphan")
+    # Relationship to Alerts
+    alerts = relationship("Alert", back_populates="user", cascade="all, delete-orphan")
+    # Relationship to Transactions
+    transactions = relationship("Transaction", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<User(username='{self.username}', email='{self.email}')>"

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useCallback } from "react"
+import React, { useState, useEffect } from "react"
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -62,40 +62,40 @@ export function CandlestickChart({
   const [error, setError] = useState<string | null>(null)
   const [showVolumeChart, setShowVolumeChart] = useState(showVolume)
 
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const response = await stockService.getCandleData(symbol, days)
-
-      // Transform for recharts
-      const transformedData: CandleChartData[] = response.candlesticks.map(
-        (candle: Candlestick, index: number) => {
-          const color = candle.close >= candle.open ? "#10b981" : "#ef4444"
-          return {
-            ...candle,
-            x: index,
-            wickY1: candle.high,
-            wickY2: candle.low,
-            bodyY: Math.min(candle.open, candle.close),
-            bodyHeight: Math.abs(candle.close - candle.open) || 0.5,
-            color,
-          }
-        }
-      )
-
-      setData(transformedData)
-    } catch (err) {
-      setError(`Failed to load candlestick data: ${err}`)
-      setData([])
-    } finally {
-      setLoading(false)
-    }
-  }, [symbol, days])
-
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const response = await stockService.getCandleData(symbol, days)
+
+        // Transform for recharts
+        const transformedData: CandleChartData[] = response.candlesticks.map(
+          (candle: Candlestick, index: number) => {
+            const color = candle.close >= candle.open ? "#10b981" : "#ef4444"
+            return {
+              ...candle,
+              x: index,
+              wickY1: candle.high,
+              wickY2: candle.low,
+              bodyY: Math.min(candle.open, candle.close),
+              bodyHeight: Math.abs(candle.close - candle.open) || 0.5,
+              color,
+            }
+          }
+        )
+
+        setData(transformedData)
+      } catch (err) {
+        setError(`Failed to load candlestick data: ${err}`)
+        setData([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
     fetchData()
-  }, [fetchData])
+  }, [symbol, days])
 
   if (loading) {
     return (

@@ -6,6 +6,11 @@ from services.indicator_service import TechnicalIndicators
 from routes.auth_utils import get_current_user
 from models.user import User
 from typing import Optional
+from datetime import datetime, timedelta
+
+# Simple in-memory cache for indicators (symbol_type -> (timestamp, data))
+_indicator_cache: dict = {}
+_CACHE_TTL = 300  # 5 minutes
 
 router = APIRouter(prefix="/stock", tags=["stocks"])
 
@@ -33,7 +38,7 @@ async def get_stock_indicators(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Get technical indicators for a stock.
+    Get technical indicators for a stock with 5-minute caching for performance.
     
     Supported indicators:
     - all: Returns all indicators
@@ -45,6 +50,20 @@ async def get_stock_indicators(
     - stochastic: Stochastic Oscillator
     """
     try:
+        symbol = symbol.upper()
+        cache_key = f"{symbol}_{indicator_type}"
+        
+        # Check cache first
+        if cache_key in _indicator_cache:
+            cached_time, cached_data = _indicator_cache[cache_key]
+            age = datetime.now() - cached_time
+            if age < timedelta(seconds=_CACHE_TTL):
+                print(f"Returning cached indicators for {cache_key} (age: {age})")
+                return cached_data
+            else:
+                # Cache expired, remove it
+                del _indicator_cache[cache_key]
+        
         data = get_daily_stock_data(symbol, db)
         
         if "error" in data:
@@ -88,12 +107,17 @@ async def get_stock_indicators(
         else:
             raise HTTPException(status_code=400, detail=f"Unknown indicator type: {indicator_type}")
         
-        return {
+        response = {
             "symbol": symbol,
             "indicator_type": indicator_type,
             "indicators": indicators,
             "data_points": len(prices)
         }
+        
+        # Cache the response
+        _indicator_cache[cache_key] = (datetime.now(), response)
+        
+        return response
     
     except HTTPException:
         raise
