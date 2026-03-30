@@ -12,12 +12,12 @@ def extract_stock_price_info(stock_data: dict):
     """Extract current price, change, and high/low from stock data"""
     time_series = stock_data.get("Time Series (Daily)", {})
     if not time_series:
-        return {"price": 0, "change": 0, "changePercent": 0, "high": 0, "low": 0}
+        return {"current_price": 0, "daily_change": 0, "daily_change_percent": 0, "daily_high": 0, "daily_low": 0}
     
     # Get the most recent entry (first key in the sorted dict)
     dates = sorted(time_series.keys(), reverse=True)
     if len(dates) < 1:
-        return {"price": 0, "change": 0, "changePercent": 0, "high": 0, "low": 0}
+        return {"current_price": 0, "daily_change": 0, "daily_change_percent": 0, "daily_high": 0, "daily_low": 0}
     
     current_date = dates[0]
     current_data = time_series[current_date]
@@ -37,11 +37,11 @@ def extract_stock_price_info(stock_data: dict):
             changePercent = (change / previous_close) * 100
     
     return {
-        "price": current_close,
-        "change": change,
-        "changePercent": changePercent,
-        "high": current_high,
-        "low": current_low
+        "current_price": current_close,
+        "daily_change": change,
+        "daily_change_percent": changePercent,
+        "daily_high": current_high,
+        "daily_low": current_low
     }
 
 @router.post("/", response_model=WatchlistResponse, status_code=status.HTTP_201_CREATED)

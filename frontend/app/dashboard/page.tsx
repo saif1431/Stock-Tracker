@@ -208,7 +208,39 @@ export default function Dashboard() {
                 <p className="text-muted-foreground">Track stocks and manage your watchlist</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => router.push('/fundamentals')}
+                className="gap-2"
+              >
+                📈 Fundamentals
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => router.push('/news')}
+                className="gap-2"
+              >
+                📰 News
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => router.push('/sector')}
+                className="gap-2"
+              >
+                🏢 Sectors
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => router.push('/market-overview')}
+                className="gap-2"
+              >
+                🌍 Market
+              </Button>
               <Button 
                 variant="outline" 
                 size="sm"
@@ -233,6 +265,42 @@ export default function Dashboard() {
           <div className="lg:col-span-3 space-y-6">
             {/* Search Form */}
             <SearchStockForm onSearch={handleSearch} isLoading={isLoading} />
+
+            {/* Quick Access Navigation */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <button
+                onClick={() => router.push('/fundamentals')}
+                className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
+              >
+                <div className="text-2xl mb-2">📈</div>
+                <h3 className="font-semibold">Company Fundamentals</h3>
+                <p className="text-sm text-muted-foreground">PE Ratio, EPS, Market Cap</p>
+              </button>
+              <button
+                onClick={() => router.push('/news')}
+                className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
+              >
+                <div className="text-2xl mb-2">📰</div>
+                <h3 className="font-semibold">Latest News</h3>
+                <p className="text-sm text-muted-foreground">Market news & sentiment</p>
+              </button>
+              <button
+                onClick={() => router.push('/sector')}
+                className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
+              >
+                <div className="text-2xl mb-2">🏢</div>
+                <h3 className="font-semibold">Sector Performance</h3>
+                <p className="text-sm text-muted-foreground">Compare sector trends</p>
+              </button>
+              <button
+                onClick={() => router.push('/market-overview')}
+                className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
+              >
+                <div className="text-2xl mb-2">🌍</div>
+                <h3 className="font-semibold">Market Overview</h3>
+                <p className="text-sm text-muted-foreground">Indices, commodities, currencies</p>
+              </button>
+            </div>
 
             {/* Chart */}
             <StockChart

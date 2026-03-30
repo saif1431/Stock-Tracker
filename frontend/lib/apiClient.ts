@@ -1,6 +1,8 @@
 import axios, { AxiosError } from 'axios';
 import { handleAPIError, APIError, is401Error } from './errorHandler';
 
+let isRedirectingToLogin = false;
+
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
   headers: {
@@ -40,7 +42,8 @@ apiClient.interceptors.response.use(
     if (is401Error(apiError)) {
       console.warn('401 Unauthorized - redirecting to login');
       localStorage.removeItem('token');
-      if (typeof window !== 'undefined') {
+      if (typeof window !== 'undefined' && !isRedirectingToLogin && window.location.pathname !== '/login') {
+        isRedirectingToLogin = true;
         window.location.href = '/login';
       }
     }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { X, CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 export type ToastType = 'success' | 'error' | 'info';
@@ -43,11 +43,11 @@ export const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
 export const useToast = () => {
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
-  const showToast = (message: string, type: ToastType = 'info') => {
+  const showToast = useCallback((message: string, type: ToastType = 'info') => {
     setToast({ message, type });
-  };
+  }, []);
 
-  const hideToast = () => setToast(null);
+  const hideToast = useCallback(() => setToast(null), []);
 
   return { toast, showToast, hideToast };
 };

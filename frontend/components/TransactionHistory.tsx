@@ -85,7 +85,7 @@ export function TransactionHistory() {
   }
 
   if (loading && transactions.length === 0) {
-    return <div className="flex items-center justify-center h-96">Loading...</div>
+    return <div className="flex items-center justify-center h-96 text-sm text-muted-foreground">Loading transactions...</div>
   }
 
   return (
@@ -95,7 +95,7 @@ export function TransactionHistory() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="pt-6">
-              <div className="text-sm font-medium text-gray-500">
+              <div className="text-sm font-medium text-muted-foreground">
                 Total Transactions
               </div>
               <div className="text-2xl font-bold">
@@ -105,7 +105,7 @@ export function TransactionHistory() {
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <div className="text-sm font-medium text-gray-500">Buys</div>
+              <div className="text-sm font-medium text-muted-foreground">Buys</div>
               <div className="text-2xl font-bold text-green-600">
                 {summary.buy_count}
               </div>
@@ -113,7 +113,7 @@ export function TransactionHistory() {
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <div className="text-sm font-medium text-gray-500">Sells</div>
+              <div className="text-sm font-medium text-muted-foreground">Sells</div>
               <div className="text-2xl font-bold text-red-600">
                 {summary.sell_count}
               </div>
@@ -121,7 +121,7 @@ export function TransactionHistory() {
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <div className="text-sm font-medium text-gray-500">
+              <div className="text-sm font-medium text-muted-foreground">
                 Net Invested
               </div>
               <div className="text-2xl font-bold">
@@ -146,7 +146,7 @@ export function TransactionHistory() {
             <input
               type="text"
               placeholder="Filter by symbol"
-              className="px-3 py-2 border rounded"
+              className="px-3 py-2 border border-input bg-background rounded-md text-sm"
               value={filterSymbol}
               onChange={(e) => setFilterSymbol(e.target.value)}
               onKeyPress={(e) => {
@@ -154,7 +154,7 @@ export function TransactionHistory() {
               }}
             />
             <select
-              className="px-3 py-2 border rounded"
+              className="px-3 py-2 border border-input bg-background rounded-md text-sm"
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
             >
@@ -181,12 +181,12 @@ export function TransactionHistory() {
           {/* Transactions Table */}
           <div className="overflow-x-auto">
             {transactions.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-muted-foreground">
                 No transactions found
               </div>
             ) : (
               <table className="w-full text-sm">
-                <thead className="border-b bg-gray-50">
+                <thead className="border-b border-border bg-muted/40">
                   <tr>
                     <th className="text-left py-3 px-2">Date</th>
                     <th className="text-left py-3 px-2">Symbol</th>
@@ -201,7 +201,7 @@ export function TransactionHistory() {
                   {transactions.map((tx) => (
                     <tr
                       key={tx.id}
-                      className="border-b hover:bg-gray-50 transition-colors"
+                      className="border-b border-border hover:bg-accent/60 transition-colors"
                     >
                       <td className="py-3 px-2">
                         {new Date(tx.transaction_date).toLocaleDateString()}

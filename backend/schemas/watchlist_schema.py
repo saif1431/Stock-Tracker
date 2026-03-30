@@ -12,11 +12,11 @@ class WatchlistBase(BaseModel):
 class WatchlistResponse(WatchlistBase):
     id: int
     added_at: datetime
-    price: float = 0.0
-    change: float = 0.0
-    changePercent: float = 0.0
-    high: float = 0.0
-    low: float = 0.0
+    current_price: float = 0.0
+    daily_change: float = 0.0
+    daily_change_percent: float = 0.0
+    daily_high: float = 0.0
+    daily_low: float = 0.0
 
     class Config:
         from_attributes = True
