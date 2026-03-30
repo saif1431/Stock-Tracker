@@ -249,6 +249,46 @@ export default function Dashboard() {
               >
                 📊 Transactions
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/portfolio-performance')}
+                className="gap-2"
+              >
+                📈 Portfolio
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/paper-trading')}
+                className="gap-2"
+              >
+                🎯 Paper Trading
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/screener')}
+                className="gap-2"
+              >
+                🔎 Screener
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/asset-allocation')}
+                className="gap-2"
+              >
+                🧩 Allocation
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/backtesting')}
+                className="gap-2"
+              >
+                🧪 Backtesting
+              </Button>
               <Button variant="ghost" size="sm" onClick={logout} className="text-muted-foreground hover:text-destructive gap-2">
                 <LogOut className="w-4 h-4" />
                 Logout
@@ -299,6 +339,46 @@ export default function Dashboard() {
                 <div className="text-2xl mb-2">🌍</div>
                 <h3 className="font-semibold">Market Overview</h3>
                 <p className="text-sm text-muted-foreground">Indices, commodities, currencies</p>
+              </button>
+              <button
+                onClick={() => router.push('/portfolio-performance')}
+                className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
+              >
+                <div className="text-2xl mb-2">📈</div>
+                <h3 className="font-semibold">Portfolio Performance</h3>
+                <p className="text-sm text-muted-foreground">Returns, drawdown, benchmark</p>
+              </button>
+              <button
+                onClick={() => router.push('/paper-trading')}
+                className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
+              >
+                <div className="text-2xl mb-2">🎯</div>
+                <h3 className="font-semibold">Paper Trading</h3>
+                <p className="text-sm text-muted-foreground">Practice with virtual capital</p>
+              </button>
+              <button
+                onClick={() => router.push('/screener')}
+                className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
+              >
+                <div className="text-2xl mb-2">🔎</div>
+                <h3 className="font-semibold">Stock Screener</h3>
+                <p className="text-sm text-muted-foreground">Filter by valuation and growth</p>
+              </button>
+              <button
+                onClick={() => router.push('/asset-allocation')}
+                className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
+              >
+                <div className="text-2xl mb-2">🧩</div>
+                <h3 className="font-semibold">Asset Allocation</h3>
+                <p className="text-sm text-muted-foreground">Sector and concentration view</p>
+              </button>
+              <button
+                onClick={() => router.push('/backtesting')}
+                className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
+              >
+                <div className="text-2xl mb-2">🧪</div>
+                <h3 className="font-semibold">Backtesting</h3>
+                <p className="text-sm text-muted-foreground">Simulate SMA strategies</p>
               </button>
             </div>
 

@@ -4,5 +4,21 @@ from models.watchlist import Watchlist
 from models.portfolio import Portfolio
 from models.alert import Alert
 from models.transaction import Transaction
+from models.paper_trading import PaperTradingAccount, PaperPosition, PaperTransaction
+from models.stock_screen import StockScreen, ScreenResult
+from models.backtest import BacktestRun
 
-__all__ = ["User", "Stock", "Watchlist", "Portfolio", "Alert", "Transaction"]
+__all__ = [
+    "User",
+    "Stock",
+    "Watchlist",
+    "Portfolio",
+    "Alert",
+    "Transaction",
+    "PaperTradingAccount",
+    "PaperPosition",
+    "PaperTransaction",
+    "StockScreen",
+    "ScreenResult",
+    "BacktestRun",
+]

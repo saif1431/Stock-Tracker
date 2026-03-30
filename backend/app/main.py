@@ -12,6 +12,9 @@ from models import (
     news,
     sector,
     economic_data,
+    paper_trading,
+    stock_screen,
+    backtest,
 )
 
 # Create database tables
@@ -28,6 +31,10 @@ from routes.fundamental_routes import router as fundamental_router
 from routes.news_routes import router as news_router
 from routes.sector_routes import router as sector_router
 from routes.economic_routes import router as economic_router
+from routes.analytics_routes import router as analytics_router
+from routes.paper_trading_routes import router as paper_trading_router
+from routes.screener_routes import router as screener_router
+from routes.backtesting_routes import router as backtesting_router
 from services.market_seed_service import seed_market_data_if_empty
 
 app = FastAPI(title="Stock Tracking Dashboard API", version="1.0.0")
@@ -62,6 +69,10 @@ app.include_router(fundamental_router)
 app.include_router(news_router)
 app.include_router(sector_router)
 app.include_router(economic_router)
+app.include_router(analytics_router)
+app.include_router(paper_trading_router)
+app.include_router(screener_router)
+app.include_router(backtesting_router)
 
 @app.get("/")
 async def root():
