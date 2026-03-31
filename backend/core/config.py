@@ -48,6 +48,7 @@ class Settings:
     CORS_ORIGINS: list[str] = _parse_list(os.getenv("CORS_ORIGINS")) or [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        "https://stock-tracker-do6c.vercel.app",
     ]
     ALLOWED_HOSTS: list[str] = _parse_list(os.getenv("ALLOWED_HOSTS"))
 
