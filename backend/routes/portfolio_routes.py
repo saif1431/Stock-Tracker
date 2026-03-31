@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from database.database import get_db
+from core.cache import get_json, set_json, delete_pattern
 from models.portfolio import Portfolio
 from models.transaction import Transaction, TransactionType
 from models.user import User
@@ -31,6 +32,11 @@ def get_user_portfolio(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    cache_key = f"portfolio:user:{current_user.id}:v1"
+    cached_response = get_json(cache_key)
+    if cached_response:
+        return cached_response
+
     portfolio_items = db.query(Portfolio).filter(Portfolio.user_id == current_user.id).all()
     
     response = []
@@ -51,6 +57,12 @@ def get_user_portfolio(
             profit_loss=profit_loss,
             profit_loss_percent=profit_loss_percent
         ))
+
+    set_json(
+        cache_key,
+        [item.model_dump(mode="json") for item in response],
+        ttl_seconds=900,
+    )
     return response
 
 @router.post("/", response_model=PortfolioResponse)
@@ -79,6 +91,7 @@ def add_to_portfolio(
         db_item.quantity = total_quantity
         db.commit()
         db.refresh(db_item)
+        delete_pattern(f"portfolio:user:{current_user.id}:*")
         
         # Log transaction
         transaction = Transaction(
@@ -126,6 +139,7 @@ def add_to_portfolio(
     db.add(new_item)
     db.commit()
     db.refresh(new_item)
+    delete_pattern(f"portfolio:user:{current_user.id}:*")
     
     # Log transaction
     transaction = Transaction(
@@ -186,4 +200,5 @@ def remove_from_portfolio(
 
     db.delete(db_item)
     db.commit()
+    delete_pattern(f"portfolio:user:{current_user.id}:*")
     return {"message": "Removed from portfolio"}

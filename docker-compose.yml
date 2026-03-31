@@ -1,6 +1,28 @@
 version: '3.9'
 
 services:
+  postgres:
+    image: postgres:15
+    container_name: stock-dashboard-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=stocktracker
+      - POSTGRES_PASSWORD=password123
+      - POSTGRES_DB=stock_tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: stock-dashboard-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
   backend:
     build:
       context: ./backend
@@ -9,12 +31,17 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=sqlite:///./stock_dashboard.db
+      - DATABASE_URL=postgresql://stocktracker:password123@postgres:5432/stock_tracker
+      - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY=your-secret-key-change-in-prod
       - ALGORITHM=HS256
       - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - ENVIRONMENT=development
     volumes:
       - ./backend:/app
+    depends_on:
+      - postgres
+      - redis
 
   frontend:
     build:
@@ -27,3 +54,7 @@ services:
       - NEXT_PUBLIC_API_URL=http://backend:8000
     depends_on:
       - backend
+
+volumes:
+  postgres_data:
+  redis_data:

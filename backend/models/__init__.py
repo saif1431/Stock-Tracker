@@ -7,6 +7,7 @@ from models.transaction import Transaction
 from models.paper_trading import PaperTradingAccount, PaperPosition, PaperTransaction
 from models.stock_screen import StockScreen, ScreenResult
 from models.backtest import BacktestRun
+from models.social import UserProfile, PortfolioShare, Follow, StockDiscussion, DiscussionComment
 
 __all__ = [
     "User",
@@ -21,4 +22,9 @@ __all__ = [
     "StockScreen",
     "ScreenResult",
     "BacktestRun",
+    "UserProfile",
+    "PortfolioShare",
+    "Follow",
+    "StockDiscussion",
+    "DiscussionComment",
 ]

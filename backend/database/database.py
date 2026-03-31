@@ -7,6 +7,16 @@ from core.config import settings
 engine_kwargs = {}
 if "sqlite" in settings.DATABASE_URL:
     engine_kwargs["connect_args"] = {"check_same_thread": False}
+else:
+    # Production-friendly pool settings for PostgreSQL/MySQL style backends.
+    engine_kwargs.update(
+        {
+            "pool_pre_ping": True,
+            "pool_recycle": 1800,
+            "pool_size": 10,
+            "max_overflow": 20,
+        }
+    )
 
 engine = create_engine(settings.DATABASE_URL, **engine_kwargs)
 

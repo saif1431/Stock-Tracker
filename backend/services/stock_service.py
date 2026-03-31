@@ -2,17 +2,26 @@ import requests
 import time
 from typing import Dict, Any
 from core.config import settings
+from core.cache import get_json, set_json
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 from models.stock import Stock
 from services.mock_stock_data import generate_mock_stock_data
 
+
+_STOCK_CACHE_TTL_SECONDS = 300
+
 def get_daily_stock_data(symbol: str, db: Session) -> Dict[str, Any]:
     """
     Fetches daily stock data from Alpha Vantage API, with a 5-minute database cache.
     """
     symbol = symbol.upper()
+
+    redis_cache_key = f"stock:{symbol}:daily"
+    redis_cached_value = get_json(redis_cache_key)
+    if redis_cached_value:
+        return redis_cached_value
     
     # 1. Check if stock exists in database and has valid cache
     stock = db.query(Stock).filter(Stock.symbol == symbol).first()
@@ -22,6 +31,7 @@ def get_daily_stock_data(symbol: str, db: Session) -> Dict[str, Any]:
         age = datetime.now(timezone.utc) - stock.last_fetched.replace(tzinfo=timezone.utc)
         if age < timedelta(minutes=5):
             print(f"Returning cached data for {symbol} (age: {age})")
+            set_json(redis_cache_key, stock.cached_data, _STOCK_CACHE_TTL_SECONDS)
             return stock.cached_data
 
     # 2. If no valid cache, fetch from Alpha Vantage
@@ -78,6 +88,8 @@ def get_daily_stock_data(symbol: str, db: Session) -> Dict[str, Any]:
         
         db.commit()
         db.refresh(stock)
+
+        set_json(redis_cache_key, data, _STOCK_CACHE_TTL_SECONDS)
             
         return data
         
@@ -92,6 +104,7 @@ def get_daily_stock_data(symbol: str, db: Session) -> Dict[str, Any]:
         stock.cached_data = data
         stock.last_fetched = func.now()
         db.commit()
+        set_json(redis_cache_key, data, _STOCK_CACHE_TTL_SECONDS)
         return data
     except Exception as e:
         print(f"An unexpected error occurred: {str(e)}")
@@ -104,6 +117,7 @@ def get_daily_stock_data(symbol: str, db: Session) -> Dict[str, Any]:
         stock.cached_data = data
         stock.last_fetched = func.now()
         db.commit()
+        set_json(redis_cache_key, data, _STOCK_CACHE_TTL_SECONDS)
         return data
 
 

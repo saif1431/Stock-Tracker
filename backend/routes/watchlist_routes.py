@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from database.database import get_db
+from core.cache import get_json, set_json, delete_pattern
 from models import User, Stock, Watchlist
 from schemas.watchlist_schema import WatchlistCreate, WatchlistResponse
 from routes.auth_utils import get_current_user
@@ -74,6 +75,8 @@ def add_to_watchlist(
     db.commit()
     db.refresh(new_entry)
 
+    delete_pattern(f"watchlist:user:{current_user.id}:*")
+
     # Get stock price info
     stock_data = get_daily_stock_data(stock.symbol, db)
     price_info = extract_stock_price_info(stock_data)
@@ -94,6 +97,11 @@ def get_user_watchlist(
     """
     Returns all stocks in the authenticated user's watchlist with current prices.
     """
+    cache_key = f"watchlist:user:{current_user.id}:v1"
+    cached_response = get_json(cache_key)
+    if cached_response:
+        return cached_response
+
     watchlist_items = db.query(Watchlist).filter(Watchlist.user_id == current_user.id).all()
     
     response = []
@@ -109,6 +117,12 @@ def get_user_watchlist(
             added_at=item.added_at,
             **price_info
         ))
+
+    set_json(
+        cache_key,
+        [item.model_dump(mode="json") for item in response],
+        ttl_seconds=600,
+    )
     return response
 
 @router.delete("/{symbol}", status_code=status.HTTP_204_NO_CONTENT)
@@ -136,4 +150,5 @@ def remove_from_watchlist(
         
     db.delete(entry)
     db.commit()
+    delete_pattern(f"watchlist:user:{current_user.id}:*")
     return None

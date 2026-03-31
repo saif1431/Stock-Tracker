@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database.database import engine, Base, SessionLocal
+from core.config import settings
+from core.cache import init_cache
+from core.logging import setup_logging
 from models import (
     user,
     stock,
@@ -15,6 +18,7 @@ from models import (
     paper_trading,
     stock_screen,
     backtest,
+    social,
 )
 
 # Create database tables
@@ -35,6 +39,7 @@ from routes.analytics_routes import router as analytics_router
 from routes.paper_trading_routes import router as paper_trading_router
 from routes.screener_routes import router as screener_router
 from routes.backtesting_routes import router as backtesting_router
+from routes.social_routes import router as social_router
 from services.market_seed_service import seed_market_data_if_empty
 
 app = FastAPI(title="Stock Tracking Dashboard API", version="1.0.0")
@@ -42,6 +47,9 @@ app = FastAPI(title="Stock Tracking Dashboard API", version="1.0.0")
 
 @app.on_event("startup")
 def seed_initial_market_data() -> None:
+    setup_logging(settings.DEBUG)
+    init_cache()
+
     db = SessionLocal()
     try:
         seed_market_data_if_empty(db)
@@ -51,7 +59,7 @@ def seed_initial_market_data() -> None:
 # Enable CORS for frontend communication
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -73,6 +81,7 @@ app.include_router(analytics_router)
 app.include_router(paper_trading_router)
 app.include_router(screener_router)
 app.include_router(backtesting_router)
+app.include_router(social_router)
 
 @app.get("/")
 async def root():
@@ -81,3 +90,11 @@ async def root():
 @app.get("/health")
 async def health():
     return {"status": "healthy"}
+
+
+@app.get("/health/ready")
+async def ready():
+    return {
+        "status": "ready",
+        "environment": settings.ENVIRONMENT,
+    }

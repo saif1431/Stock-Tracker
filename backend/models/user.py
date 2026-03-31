@@ -20,5 +20,23 @@ class User(Base):
     # Relationship to Transactions
     transactions = relationship("Transaction", back_populates="user", cascade="all, delete-orphan")
 
+    # Social relationships
+    profile = relationship("UserProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    followers = relationship(
+        "Follow",
+        foreign_keys="Follow.following_id",
+        back_populates="following",
+        cascade="all, delete-orphan",
+    )
+    following = relationship(
+        "Follow",
+        foreign_keys="Follow.follower_id",
+        back_populates="follower",
+        cascade="all, delete-orphan",
+    )
+    portfolio_shares = relationship("PortfolioShare", back_populates="user", cascade="all, delete-orphan")
+    discussions = relationship("StockDiscussion", back_populates="user", cascade="all, delete-orphan")
+    discussion_comments = relationship("DiscussionComment", back_populates="user", cascade="all, delete-orphan")
+
     def __repr__(self):
         return f"<User(username='{self.username}', email='{self.email}')>"
