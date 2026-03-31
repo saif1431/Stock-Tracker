@@ -3,12 +3,24 @@ Technical Indicators Service
 Calculates technical analysis indicators (SMA, EMA, RSI, MACD, Bollinger Bands, Stochastic)
 """
 
-import numpy as np
-from typing import Dict, List, Tuple
+from math import sqrt
+from typing import Dict, List
 
 
 class TechnicalIndicators:
     """Calculate various technical indicators from price data"""
+
+    @staticmethod
+    def _mean(values: List[float]) -> float:
+        return sum(values) / len(values) if values else 0.0
+
+    @staticmethod
+    def _std(values: List[float]) -> float:
+        if not values:
+            return 0.0
+        mean = TechnicalIndicators._mean(values)
+        variance = sum((value - mean) ** 2 for value in values) / len(values)
+        return sqrt(variance)
 
     @staticmethod
     def calculate_sma(prices: List[float], period: int) -> List[float]:
@@ -25,7 +37,7 @@ class TechnicalIndicators:
         
         sma = []
         for i in range(len(prices) - period + 1):
-            avg = np.mean(prices[i : i + period])
+            avg = TechnicalIndicators._mean(prices[i : i + period])
             sma.append(float(avg))
         return sma
 
@@ -46,7 +58,7 @@ class TechnicalIndicators:
         multiplier = 2 / (period + 1)
         
         # First EMA is SMA
-        sma = np.mean(prices[:period])
+        sma = TechnicalIndicators._mean(prices[:period])
         ema.append(float(sma))
         
         # Calculate EMA for remaining prices
@@ -70,11 +82,11 @@ class TechnicalIndicators:
         if len(prices) < period + 1:
             return []
         
-        deltas = np.diff(prices)
+        deltas = [prices[i] - prices[i - 1] for i in range(1, len(prices))]
         seed = deltas[: period + 1]
-        
-        up = seed[seed >= 0].sum() / period
-        down = -seed[seed < 0].sum() / period
+
+        up = sum(delta for delta in seed if delta >= 0) / period
+        down = -sum(delta for delta in seed if delta < 0) / period
         
         rsi = []
         
@@ -168,7 +180,7 @@ class TechnicalIndicators:
             end_idx = i + period
             period_prices = prices[start_idx:end_idx]
             
-            std = np.std(period_prices)
+            std = TechnicalIndicators._std(period_prices)
             upper.append(float(middle[i] + (std * std_multiplier)))
             lower.append(float(middle[i] - (std * std_multiplier)))
         
@@ -199,8 +211,8 @@ class TechnicalIndicators:
         k_values = []
         
         for i in range(len(close) - period + 1):
-            high_max = np.max(high[i : i + period])
-            low_min = np.min(low[i : i + period])
+            high_max = max(high[i : i + period])
+            low_min = min(low[i : i + period])
             
             if high_max == low_min:
                 k = 50.0
