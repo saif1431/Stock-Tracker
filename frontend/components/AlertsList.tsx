@@ -90,7 +90,7 @@ export function AlertsList({ refreshTrigger }: AlertsListProps) {
       setAlerts((prev) => {
         if (!Array.isArray(prev)) return []
         return prev.map((a) =>
-          a.id === alertId ? { ...a, is_active: updatedAlert.alert?.is_active ?? a.is_active } : a
+          a.id === alertId ? { ...a, is_active: updatedAlert.is_active ?? a.is_active } : a
         )
       })
     } catch (err: unknown) {
