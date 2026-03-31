@@ -57,6 +57,14 @@ export function CandlestickChart({
   days = 30,
   showVolume = true,
 }: CandlestickChartProps) {
+  const tooltipTheme = {
+    backgroundColor: "var(--color-card)",
+    border: "1px solid var(--color-border)",
+    borderRadius: "10px",
+    color: "var(--color-card-foreground)",
+    padding: "10px",
+  }
+
   const [data, setData] = useState<CandleChartData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -177,12 +185,10 @@ export function CandlestickChart({
                 label={{ value: "Price ($)", angle: -90, position: "insideLeft" }}
               />
               <Tooltip
-                contentStyle={{
-                  backgroundColor: "#fff",
-                  border: "1px solid #ccc",
-                  borderRadius: "8px",
-                  padding: "10px",
-                }}
+                contentStyle={tooltipTheme}
+                labelStyle={{ color: "var(--color-muted-foreground)" }}
+                itemStyle={{ color: "var(--color-card-foreground)" }}
+                cursor={{ stroke: "var(--color-primary)", strokeOpacity: 0.35, strokeWidth: 1 }}
                 formatter={(value) => {
                   if (typeof value === "number") {
                     return [value.toFixed(2), ""]
@@ -217,6 +223,10 @@ export function CandlestickChart({
                   label={{ value: "Volume", angle: -90, position: "insideLeft" }}
                 />
                 <Tooltip
+                  contentStyle={tooltipTheme}
+                  labelStyle={{ color: "var(--color-muted-foreground)" }}
+                  itemStyle={{ color: "var(--color-card-foreground)" }}
+                  cursor={{ stroke: "var(--color-primary)", strokeOpacity: 0.35, strokeWidth: 1 }}
                   formatter={(value) => {
                     if (typeof value === "number") {
                       return [`${(value / 1000000).toFixed(2)}M`, "Volume"]

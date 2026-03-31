@@ -65,6 +65,13 @@ interface TechnicalIndicatorsProps {
 }
 
 export function TechnicalIndicators({ symbol, chartData }: TechnicalIndicatorsProps) {
+  const tooltipTheme = {
+    backgroundColor: "var(--color-card)",
+    border: "1px solid var(--color-border)",
+    borderRadius: "10px",
+    color: "var(--color-card-foreground)",
+  }
+
   const [indicators, setIndicators] = useState<IndicatorData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -238,7 +245,10 @@ export function TechnicalIndicators({ symbol, chartData }: TechnicalIndicatorsPr
                   label={{ value: "Price ($)", angle: -90, position: "insideLeft" }}
                 />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "#fff", border: "1px solid #ccc" }}
+                  contentStyle={tooltipTheme}
+                  labelStyle={{ color: "var(--color-muted-foreground)" }}
+                  itemStyle={{ color: "var(--color-card-foreground)" }}
+                  cursor={{ stroke: "var(--color-primary)", strokeOpacity: 0.35, strokeWidth: 1 }}
                   formatter={(value) => (typeof value === "number" ? `$${value.toFixed(2)}` : value)}
                 />
                 <Legend />
@@ -349,7 +359,13 @@ export function TechnicalIndicators({ symbol, chartData }: TechnicalIndicatorsPr
                   }}
                 />
                 <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
-                <Tooltip formatter={(value) => (typeof value === "number" ? value.toFixed(2) : value)} />
+                <Tooltip
+                  contentStyle={tooltipTheme}
+                  labelStyle={{ color: "var(--color-muted-foreground)" }}
+                  itemStyle={{ color: "var(--color-card-foreground)" }}
+                  cursor={{ stroke: "var(--color-primary)", strokeOpacity: 0.35, strokeWidth: 1 }}
+                  formatter={(value) => (typeof value === "number" ? value.toFixed(2) : value)}
+                />
                 <Legend />
 
                 {/* Reference lines */}
@@ -391,7 +407,13 @@ export function TechnicalIndicators({ symbol, chartData }: TechnicalIndicatorsPr
                   }}
                 />
                 <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip formatter={(value) => (typeof value === "number" ? value.toFixed(4) : value)} />
+                <Tooltip
+                  contentStyle={tooltipTheme}
+                  labelStyle={{ color: "var(--color-muted-foreground)" }}
+                  itemStyle={{ color: "var(--color-card-foreground)" }}
+                  cursor={{ stroke: "var(--color-primary)", strokeOpacity: 0.35, strokeWidth: 1 }}
+                  formatter={(value) => (typeof value === "number" ? value.toFixed(4) : value)}
+                />
                 <Legend />
 
                 {/* Zero line */}

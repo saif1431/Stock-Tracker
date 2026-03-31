@@ -9,6 +9,17 @@ import { analyticsService, AssetAllocationResponse } from "@/services/analyticsS
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 const COLORS = ["#14b8a6", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#22c55e"]
+const HOLDING_BAR_COLORS = ["#0ea5e9", "#22c55e", "#f59e0b", "#f97316", "#ec4899", "#8b5cf6", "#14b8a6"]
+
+const TOOLTIP_CONTENT_STYLE = {
+  backgroundColor: "#ffffff",
+  border: "1px solid #d1d5db",
+  color: "#111111",
+}
+
+const TOOLTIP_TEXT_STYLE = {
+  color: "#111111",
+}
 
 export default function AssetAllocationPage() {
   const { loading } = useAuth()
@@ -77,7 +88,11 @@ export default function AssetAllocationPage() {
                         <Cell key={index} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip
+                      contentStyle={TOOLTIP_CONTENT_STYLE}
+                      labelStyle={TOOLTIP_TEXT_STYLE}
+                      itemStyle={TOOLTIP_TEXT_STYLE}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -95,8 +110,17 @@ export default function AssetAllocationPage() {
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                     <XAxis dataKey="symbol" stroke="hsl(var(--muted-foreground))" />
                     <YAxis stroke="hsl(var(--muted-foreground))" />
-                    <Tooltip />
-                    <Bar dataKey="percentage" fill="hsl(var(--primary))" />
+                    <Tooltip
+                      contentStyle={TOOLTIP_CONTENT_STYLE}
+                      labelStyle={TOOLTIP_TEXT_STYLE}
+                      itemStyle={TOOLTIP_TEXT_STYLE}
+                      cursor={{ fill: "hsl(var(--muted) / 0.35)" }}
+                    />
+                    <Bar dataKey="percentage">
+                      {(data?.holding_allocation?.slice(0, 10) || []).map((_, index) => (
+                        <Cell key={index} fill={HOLDING_BAR_COLORS[index % HOLDING_BAR_COLORS.length]} />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>

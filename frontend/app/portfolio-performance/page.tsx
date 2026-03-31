@@ -3,11 +3,28 @@
 import React, { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, BarChart, Bar } from "recharts"
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, BarChart, Bar, Cell } from "recharts"
 
 import { useAuth } from "@/hooks/useAuth"
 import { analyticsService, PortfolioPerformanceResponse } from "@/services/analyticsService"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
+const CHART_COLORS = {
+  valueLine: "#0ea5e9",
+  positiveBar: "#16a34a",
+  negativeBar: "#dc2626",
+  fallbackBar: "#f97316",
+}
+
+const TOOLTIP_CONTENT_STYLE = {
+  backgroundColor: "#ffffff",
+  border: "1px solid #d1d5db",
+  color: "#111111",
+}
+
+const TOOLTIP_TEXT_STYLE = {
+  color: "#111111",
+}
 
 export default function PortfolioPerformancePage() {
   const { loading } = useAuth()
@@ -82,8 +99,13 @@ export default function PortfolioPerformancePage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" />
                   <YAxis stroke="hsl(var(--muted-foreground))" />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="portfolio_value" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={false} />
+                  <Tooltip
+                    contentStyle={TOOLTIP_CONTENT_STYLE}
+                    labelStyle={TOOLTIP_TEXT_STYLE}
+                    itemStyle={TOOLTIP_TEXT_STYLE}
+                    cursor={{ stroke: "hsl(var(--muted-foreground))", strokeDasharray: "4 4" }}
+                  />
+                  <Line type="monotone" dataKey="portfolio_value" stroke={CHART_COLORS.valueLine} strokeWidth={2.5} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -102,8 +124,26 @@ export default function PortfolioPerformancePage() {
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                     <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
                     <YAxis stroke="hsl(var(--muted-foreground))" />
-                    <Tooltip />
-                    <Bar dataKey="return_pct" fill="hsl(var(--primary))" />
+                    <Tooltip
+                      contentStyle={TOOLTIP_CONTENT_STYLE}
+                      labelStyle={TOOLTIP_TEXT_STYLE}
+                      itemStyle={TOOLTIP_TEXT_STYLE}
+                      cursor={{ fill: "hsl(var(--muted) / 0.35)" }}
+                    />
+                    <Bar dataKey="return_pct" minPointSize={4}>
+                      {(data?.monthly_returns || []).map((entry, index) => (
+                        <Cell
+                          key={index}
+                          fill={
+                            Number.isFinite(Number(entry.return_pct))
+                              ? Number(entry.return_pct) >= 0
+                                ? CHART_COLORS.positiveBar
+                                : CHART_COLORS.negativeBar
+                              : CHART_COLORS.fallbackBar
+                          }
+                        />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>

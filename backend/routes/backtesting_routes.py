@@ -33,6 +33,7 @@ def run_backtest(
 
     try:
         result = run_sma_backtest(
+            db=db,
             symbol=payload.symbol,
             start_date=payload.start_date,
             end_date=payload.end_date,

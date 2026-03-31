@@ -22,6 +22,7 @@ def _max_drawdown(values: list[float]) -> float:
 
 
 def run_sma_backtest(
+    db: Session,
     symbol: str,
     start_date: str,
     end_date: str,
@@ -31,15 +32,16 @@ def run_sma_backtest(
 ) -> dict:
     symbol = symbol.upper()
 
-    all_data = get_daily_stock_data(symbol)
+    all_data = get_daily_stock_data(symbol, db)
+    series = all_data.get("Time Series (Daily)", {}) if isinstance(all_data, dict) else {}
     start = datetime.strptime(start_date, "%Y-%m-%d").date()
     end = datetime.strptime(end_date, "%Y-%m-%d").date()
 
     rows = []
-    for row in all_data:
-        d = datetime.strptime(row["date"], "%Y-%m-%d").date()
+    for date_str, values in series.items():
+        d = datetime.strptime(date_str, "%Y-%m-%d").date()
         if start <= d <= end:
-            rows.append({"date": row["date"], "close": row["close"]})
+            rows.append({"date": date_str, "close": float(values.get("4. close", 0.0))})
 
     rows.sort(key=lambda x: x["date"])
 

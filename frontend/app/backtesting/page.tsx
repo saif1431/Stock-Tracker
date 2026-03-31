@@ -9,6 +9,18 @@ import { backtestingService, BacktestResult } from "@/services/backtestingServic
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
+const EQUITY_CURVE_COLOR = "#0ea5e9"
+
+const TOOLTIP_CONTENT_STYLE = {
+  backgroundColor: "#ffffff",
+  border: "1px solid #d1d5db",
+  color: "#111111",
+}
+
+const TOOLTIP_TEXT_STYLE = {
+  color: "#111111",
+}
+
 function todayMinus(days: number): string {
   const d = new Date()
   d.setDate(d.getDate() - days)
@@ -122,8 +134,13 @@ export default function BacktestingPage() {
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                       <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" />
                       <YAxis stroke="hsl(var(--muted-foreground))" />
-                      <Tooltip />
-                      <Line dataKey="equity" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={false} />
+                      <Tooltip
+                        contentStyle={TOOLTIP_CONTENT_STYLE}
+                        labelStyle={TOOLTIP_TEXT_STYLE}
+                        itemStyle={TOOLTIP_TEXT_STYLE}
+                        cursor={{ stroke: "hsl(var(--muted-foreground))", strokeDasharray: "4 4" }}
+                      />
+                      <Line dataKey="equity" stroke={EQUITY_CURVE_COLOR} strokeWidth={2.5} dot={false} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>

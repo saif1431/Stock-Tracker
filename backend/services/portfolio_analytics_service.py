@@ -7,8 +7,18 @@ from sqlalchemy.orm import Session
 
 from models.transaction import Transaction
 from models.portfolio import Portfolio
-from models.fundamental import FundamentalData
-from services.stock_service import get_current_stock_price, get_daily_stock_data
+from models.fundamental import Fundamental
+from services.stock_service import get_daily_stock_data
+
+
+def _current_price(symbol: str, db: Session) -> float:
+    data = get_daily_stock_data(symbol, db)
+    series = data.get("Time Series (Daily)", {}) if isinstance(data, dict) else {}
+    if not series:
+        return 0.0
+    latest_date = max(series.keys())
+    latest = series.get(latest_date, {})
+    return float(latest.get("4. close", 0.0))
 
 
 def _safe_pct(numerator: float, denominator: float) -> float:
@@ -86,13 +96,14 @@ def build_portfolio_performance(db: Session, user_id: int) -> dict:
     for tx in transactions:
         symbol = tx.symbol.upper()
         price = tx.price_per_share
+        side = tx.transaction_type.value if hasattr(tx.transaction_type, "value") else str(tx.transaction_type).lower()
 
-        if tx.transaction_type.lower() == "buy":
+        if side == "buy":
             holdings[symbol] += tx.quantity
-            total_buys += tx.total_amount
+            total_buys += tx.total_value
         else:
             holdings[symbol] -= tx.quantity
-            total_sells += tx.total_amount
+            total_sells += tx.total_value
             if holdings[symbol] < 0:
                 holdings[symbol] = 0
 
@@ -112,7 +123,7 @@ def build_portfolio_performance(db: Session, user_id: int) -> dict:
     for p in portfolios:
         if p.quantity <= 0:
             continue
-        current_price = get_current_stock_price(p.symbol)
+        current_price = _current_price(p.symbol, db)
         current_value += p.quantity * current_price
 
     if current_value <= 0 and history:
@@ -158,14 +169,16 @@ def build_portfolio_performance(db: Session, user_id: int) -> dict:
 
     benchmark_return = None
     try:
-        spy_data = get_daily_stock_data("SPY")
-        filtered = [
-            x for x in spy_data if datetime.strptime(x["date"], "%Y-%m-%d").date() >= first_date
-        ]
-        if len(filtered) >= 2:
-            start_price = filtered[0]["close"]
-            end_price = filtered[-1]["close"]
-            benchmark_return = _safe_pct(end_price - start_price, start_price)
+        spy_data = get_daily_stock_data("SPY", db)
+        spy_series = spy_data.get("Time Series (Daily)", {}) if isinstance(spy_data, dict) else {}
+        filtered_dates = sorted(
+            [d for d in spy_series.keys() if datetime.strptime(d, "%Y-%m-%d").date() >= first_date]
+        )
+        if len(filtered_dates) >= 2:
+            start_price = float(spy_series[filtered_dates[0]].get("4. close", 0.0))
+            end_price = float(spy_series[filtered_dates[-1]].get("4. close", 0.0))
+            if start_price > 0:
+                benchmark_return = _safe_pct(end_price - start_price, start_price)
     except Exception:
         benchmark_return = None
 
@@ -204,11 +217,11 @@ def build_asset_allocation(db: Session, user_id: int) -> dict:
         if holding.quantity <= 0:
             continue
 
-        current_price = get_current_stock_price(holding.symbol)
+        current_price = _current_price(holding.symbol, db)
         market_value = current_price * holding.quantity
         total_value += market_value
 
-        fundamental = db.query(FundamentalData).filter(FundamentalData.symbol == holding.symbol).first()
+        fundamental = db.query(Fundamental).filter(Fundamental.symbol == holding.symbol.upper()).first()
         sector = (fundamental.sector if fundamental and fundamental.sector else "Unknown").strip()
         sector_values[sector] += market_value
 

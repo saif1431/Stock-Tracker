@@ -2,7 +2,17 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
 from models.paper_trading import PaperTradingAccount, PaperPosition, PaperTransaction
-from services.stock_service import get_current_stock_price
+from services.stock_service import get_daily_stock_data
+
+
+def _current_price(symbol: str, db: Session) -> float:
+    data = get_daily_stock_data(symbol, db)
+    series = data.get("Time Series (Daily)", {}) if isinstance(data, dict) else {}
+    if not series:
+        return 0.0
+    latest_date = max(series.keys())
+    latest = series.get(latest_date, {})
+    return float(latest.get("4. close", 0.0))
 
 
 def create_account(db: Session, user_id: int, name: str, initial_balance: float) -> PaperTradingAccount:
@@ -29,7 +39,9 @@ def execute_trade(db: Session, user_id: int, account_id: int, symbol: str, side:
 
     symbol = symbol.upper()
     side = side.lower()
-    price = get_current_stock_price(symbol)
+    price = _current_price(symbol, db)
+    if price <= 0:
+        raise HTTPException(status_code=400, detail="Unable to fetch market price for symbol")
     total_value = price * quantity
 
     position = (
@@ -105,7 +117,7 @@ def account_performance(db: Session, user_id: int, account_id: int) -> dict:
     positions_value = 0.0
 
     for p in positions:
-        market_price = get_current_stock_price(p.symbol)
+        market_price = _current_price(p.symbol, db)
         market_value = market_price * p.quantity
         unrealized_pnl = (market_price - p.average_cost) * p.quantity
 

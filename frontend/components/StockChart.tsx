@@ -38,6 +38,13 @@ export function StockChart({
   onAddWatchlist,
   onBuy,
 }: StockChartProps) {
+  const tooltipTheme = {
+    backgroundColor: "var(--color-card)",
+    border: "1px solid var(--color-border)",
+    borderRadius: "10px",
+    color: "var(--color-card-foreground)",
+  }
+
   const [isBuying, setIsBuying] = React.useState(false)
   const [buyQuantity, setBuyQuantity] = React.useState("1")
   const [buyPrice, setBuyPrice] = React.useState("")
@@ -183,7 +190,10 @@ export function StockChart({
               label={{ value: 'Price ($)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } }}
             />
             <Tooltip
-              contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '8px' }}
+              contentStyle={tooltipTheme}
+              labelStyle={{ color: "var(--color-muted-foreground)" }}
+              itemStyle={{ color: "var(--color-card-foreground)" }}
+              cursor={{ stroke: "var(--color-primary)", strokeOpacity: 0.35, strokeWidth: 1 }}
               formatter={(value) => [`$${typeof value === "number" ? value.toFixed(2) : value}`, '']}
               labelFormatter={(label) => `Date: ${label}`}
             />

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from models.fundamental import FundamentalData
+from models.fundamental import Fundamental
 from models.stock_screen import StockScreen, ScreenResult
 
 
@@ -15,7 +15,7 @@ def _matches_range(value: float | None, min_v: float | None, max_v: float | None
 
 
 def run_screener(db: Session, criteria: dict) -> list[dict]:
-    rows = db.query(FundamentalData).all()
+    rows = db.query(Fundamental).all()
 
     sector_filter = criteria.get("sector")
     limit = int(criteria.get("limit", 50))
@@ -36,7 +36,8 @@ def run_screener(db: Session, criteria: dict) -> list[dict]:
                 continue
 
         if criteria.get("min_revenue_growth") is not None:
-            if row.revenue_growth is None or row.revenue_growth < criteria.get("min_revenue_growth"):
+            revenue_growth = getattr(row, "revenue_growth", None)
+            if revenue_growth is None or revenue_growth < criteria.get("min_revenue_growth"):
                 continue
 
         if criteria.get("min_profit_margin") is not None:
@@ -44,8 +45,9 @@ def run_screener(db: Session, criteria: dict) -> list[dict]:
                 continue
 
         score = 0.0
-        if row.revenue_growth is not None:
-            score += max(0.0, row.revenue_growth)
+        revenue_growth = getattr(row, "revenue_growth", None)
+        if revenue_growth is not None:
+            score += max(0.0, revenue_growth)
         if row.profit_margin is not None:
             score += max(0.0, row.profit_margin)
         if row.dividend_yield is not None:
@@ -59,7 +61,7 @@ def run_screener(db: Session, criteria: dict) -> list[dict]:
                 "market_cap": row.market_cap,
                 "pe_ratio": row.pe_ratio,
                 "dividend_yield": row.dividend_yield,
-                "revenue_growth": row.revenue_growth,
+                "revenue_growth": revenue_growth,
                 "profit_margin": row.profit_margin,
                 "sector": row.sector,
                 "score": round(score, 2),

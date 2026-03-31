@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { useRouter } from "next/navigation"
 import { WatchlistSidebar } from "@/components/WatchlistSidebar"
 import { PortfolioSection, PortfolioItem } from "@/components/PortfolioSection"
-import { TrendingUp, Radio, LogOut, Loader2 } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Toast, useToast } from "@/components/ui/Toast"
 
@@ -60,6 +60,20 @@ const MOCK_WATCHLIST: WatchlistItem[] = [
   { symbol: "MSFT", price: 380.2, change: 5.3, changePercent: 1.42 },
 ]
 
+interface NavItem {
+  label: string
+  path: string
+}
+
+const QUICK_ACCESS_ITEMS: NavItem[] = [
+  { label: "📈 Company Fundamentals", path: "/fundamentals" },
+  { label: "📰 Latest News", path: "/news" },
+  { label: "🌍 Market Overview", path: "/market-overview" },
+  { label: "📈 Portfolio Performance", path: "/portfolio-performance" },
+  { label: "🎯 Paper Trading", path: "/paper-trading" },
+  { label: "🔎 Stock Screener", path: "/screener" },
+]
+
 export default function Dashboard() {
   const { loading, logout } = useAuth()
   const { toast, showToast, hideToast } = useToast()
@@ -100,7 +114,7 @@ export default function Dashboard() {
   }, [])
 
   // Set up WebSocket for real-time updates
-  const { isConnected } = useStockWebSocket(currentStock, useCallback((data: StockData | { error: unknown }) => {
+  useStockWebSocket(currentStock, useCallback((data: StockData | { error: unknown }) => {
     if (data && !('error' in data)) {
       const transformedData = stockService.transformStockData(data as StockData)
       setChartData(transformedData)
@@ -189,115 +203,6 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <TrendingUp className="w-8 h-8 text-primary" />
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <h1 className="text-3xl font-bold tracking-tight">Stock Tracker</h1>
-                  {isConnected && (
-                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 text-xs font-medium animate-pulse">
-                      <Radio className="w-3 h-3" />
-                      Live
-                    </div>
-                  )}
-                </div>
-                <p className="text-muted-foreground">Track stocks and manage your watchlist</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => router.push('/fundamentals')}
-                className="gap-2"
-              >
-                📈 Fundamentals
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => router.push('/news')}
-                className="gap-2"
-              >
-                📰 News
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => router.push('/sector')}
-                className="gap-2"
-              >
-                🏢 Sectors
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => router.push('/market-overview')}
-                className="gap-2"
-              >
-                🌍 Market
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => router.push('/transactions')}
-                className="gap-2"
-              >
-                📊 Transactions
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => router.push('/portfolio-performance')}
-                className="gap-2"
-              >
-                📈 Portfolio
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => router.push('/paper-trading')}
-                className="gap-2"
-              >
-                🎯 Paper Trading
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => router.push('/screener')}
-                className="gap-2"
-              >
-                🔎 Screener
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => router.push('/asset-allocation')}
-                className="gap-2"
-              >
-                🧩 Allocation
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => router.push('/backtesting')}
-                className="gap-2"
-              >
-                🧪 Backtesting
-              </Button>
-              <Button variant="ghost" size="sm" onClick={logout} className="text-muted-foreground hover:text-destructive gap-2">
-                <LogOut className="w-4 h-4" />
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -307,79 +212,22 @@ export default function Dashboard() {
             <SearchStockForm onSearch={handleSearch} isLoading={isLoading} />
 
             {/* Quick Access Navigation */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <button
-                onClick={() => router.push('/fundamentals')}
-                className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
-              >
-                <div className="text-2xl mb-2">📈</div>
-                <h3 className="font-semibold">Company Fundamentals</h3>
-                <p className="text-sm text-muted-foreground">PE Ratio, EPS, Market Cap</p>
-              </button>
-              <button
-                onClick={() => router.push('/news')}
-                className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
-              >
-                <div className="text-2xl mb-2">📰</div>
-                <h3 className="font-semibold">Latest News</h3>
-                <p className="text-sm text-muted-foreground">Market news & sentiment</p>
-              </button>
-              <button
-                onClick={() => router.push('/sector')}
-                className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
-              >
-                <div className="text-2xl mb-2">🏢</div>
-                <h3 className="font-semibold">Sector Performance</h3>
-                <p className="text-sm text-muted-foreground">Compare sector trends</p>
-              </button>
-              <button
-                onClick={() => router.push('/market-overview')}
-                className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
-              >
-                <div className="text-2xl mb-2">🌍</div>
-                <h3 className="font-semibold">Market Overview</h3>
-                <p className="text-sm text-muted-foreground">Indices, commodities, currencies</p>
-              </button>
-              <button
-                onClick={() => router.push('/portfolio-performance')}
-                className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
-              >
-                <div className="text-2xl mb-2">📈</div>
-                <h3 className="font-semibold">Portfolio Performance</h3>
-                <p className="text-sm text-muted-foreground">Returns, drawdown, benchmark</p>
-              </button>
-              <button
-                onClick={() => router.push('/paper-trading')}
-                className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
-              >
-                <div className="text-2xl mb-2">🎯</div>
-                <h3 className="font-semibold">Paper Trading</h3>
-                <p className="text-sm text-muted-foreground">Practice with virtual capital</p>
-              </button>
-              <button
-                onClick={() => router.push('/screener')}
-                className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
-              >
-                <div className="text-2xl mb-2">🔎</div>
-                <h3 className="font-semibold">Stock Screener</h3>
-                <p className="text-sm text-muted-foreground">Filter by valuation and growth</p>
-              </button>
-              <button
-                onClick={() => router.push('/asset-allocation')}
-                className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
-              >
-                <div className="text-2xl mb-2">🧩</div>
-                <h3 className="font-semibold">Asset Allocation</h3>
-                <p className="text-sm text-muted-foreground">Sector and concentration view</p>
-              </button>
-              <button
-                onClick={() => router.push('/backtesting')}
-                className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
-              >
-                <div className="text-2xl mb-2">🧪</div>
-                <h3 className="font-semibold">Backtesting</h3>
-                <p className="text-sm text-muted-foreground">Simulate SMA strategies</p>
-              </button>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Quick Access</h2>
+                <p className="text-xs text-muted-foreground">More tools available in the More menu</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {QUICK_ACCESS_ITEMS.map((item) => (
+                  <button
+                    key={item.path}
+                    onClick={() => router.push(item.path)}
+                    className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
+                  >
+                    <h3 className="font-semibold">{item.label}</h3>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Chart */}
