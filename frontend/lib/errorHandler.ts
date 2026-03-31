@@ -61,11 +61,12 @@ export const handleAPIError = (error: AxiosError | unknown): APIError => {
 
     if (error.request && !error.response) {
       // Request made but no response received
-      const url = error.config?.url || "unknown"
+      const config = error.config
+      const fullUrl = config ? `${config.baseURL || ""}${config.url || ""}` : "unknown"
       return new APIError(
         0,
         "Network Error",
-        `No response from server (Attempted: ${url}). Please check your internet connection and try again.`
+        `No response from server (Attempted: ${fullUrl}). Please check your Vercel NEXT_PUBLIC_API_URL and backend CORS settings.`
       )
     }
   }
