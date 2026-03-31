@@ -8,6 +8,8 @@ from models.paper_trading import PaperTradingAccount, PaperPosition, PaperTransa
 from models.stock_screen import StockScreen, ScreenResult
 from models.backtest import BacktestRun
 from models.social import UserProfile, PortfolioShare, Follow, StockDiscussion, DiscussionComment
+from models.admin import AdminLog
+from models.tax import CapitalGain
 
 __all__ = [
     "User",
@@ -27,4 +29,6 @@ __all__ = [
     "Follow",
     "StockDiscussion",
     "DiscussionComment",
+    "AdminLog",
+    "CapitalGain",
 ]

@@ -25,6 +25,9 @@ const MORE_NAV_ITEMS: NavItem[] = [
   { label: "Screener", path: "/screener" },
   { label: "Allocation", path: "/asset-allocation" },
   { label: "Backtesting", path: "/backtesting" },
+  { label: "Tax Tools", path: "/tax" },
+  { label: "Security (2FA)", path: "/security" },
+  { label: "Rate Limit", path: "/rate-limit" },
 ]
 
 const HIDE_NAV_PATHS = new Set(["/", "/login", "/register"])
@@ -32,6 +35,7 @@ const HIDE_NAV_PATHS = new Set(["/", "/login", "/register"])
 export function AppNavbar() {
   const pathname = usePathname()
   const router = useRouter()
+  const isAdminPage = pathname.startsWith("/admin")
 
   if (HIDE_NAV_PATHS.has(pathname)) {
     return null
@@ -55,44 +59,58 @@ export function AppNavbar() {
           </button>
 
           <div className="flex items-center gap-2">
-            <div className="hidden xl:flex items-center gap-2">
-              {PRIMARY_NAV_ITEMS.map((item) => (
-                <Button
-                  key={item.path}
-                  variant={pathname === item.path ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => router.push(item.path)}
-                >
-                  {item.label}
-                </Button>
-              ))}
-            </div>
+            {!isAdminPage ? (
+              <>
+                <div className="hidden xl:flex items-center gap-2">
+                  {PRIMARY_NAV_ITEMS.map((item) => (
+                    <Button
+                      key={item.path}
+                      variant={pathname === item.path ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => router.push(item.path)}
+                    >
+                      {item.label}
+                    </Button>
+                  ))}
+                </div>
 
-            <details className="relative group">
-              <summary className="list-none cursor-pointer inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground hover:bg-accent">
-                Menu
-                <ChevronDown className="w-4 h-4" />
-              </summary>
-              <div className="absolute right-0 mt-2 w-56 rounded-lg border border-border bg-card shadow-lg p-2 z-20">
-                {[...PRIMARY_NAV_ITEMS, ...MORE_NAV_ITEMS].map((item) => (
-                  <button
-                    key={item.path}
-                    onClick={() => router.push(item.path)}
-                    className={`w-full text-left rounded-md px-3 py-2 text-sm hover:bg-accent ${pathname === item.path ? "bg-accent font-medium" : ""}`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-                <div className="my-1 border-t border-border" />
-                <button
-                  onClick={handleLogout}
-                  className="w-full text-left rounded-md px-3 py-2 text-sm text-destructive hover:bg-destructive/10 inline-flex items-center gap-2"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
-                </button>
-              </div>
-            </details>
+                <details className="relative group">
+                  <summary className="list-none cursor-pointer inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground hover:bg-accent">
+                    Menu
+                    <ChevronDown className="w-4 h-4" />
+                  </summary>
+                  <div className="absolute right-0 mt-2 w-56 rounded-lg border border-border bg-card shadow-lg p-2 z-20">
+                    {[...PRIMARY_NAV_ITEMS, ...MORE_NAV_ITEMS].map((item) => (
+                      <button
+                        key={item.path}
+                        onClick={() => router.push(item.path)}
+                        className={`w-full text-left rounded-md px-3 py-2 text-sm hover:bg-accent ${pathname === item.path ? "bg-accent font-medium" : ""}`}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                    <div className="my-1 border-t border-border" />
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left rounded-md px-3 py-2 text-sm text-destructive hover:bg-destructive/10 inline-flex items-center gap-2"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </button>
+                  </div>
+                </details>
+              </>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="inline-flex items-center gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </Button>
+            )}
           </div>
         </div>
       </div>

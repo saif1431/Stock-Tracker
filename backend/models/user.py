@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Boolean, Column, Integer, JSON, String
 from sqlalchemy.orm import relationship
 from database.database import Base
 
@@ -10,6 +10,14 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
+    is_admin = Column(Boolean, default=False, nullable=False)
+    is_banned = Column(Boolean, default=False, nullable=False)
+    ban_reason = Column(String, nullable=True)
+    subscription = Column(String, default="free", nullable=False)
+
+    two_fa_enabled = Column(Boolean, default=False, nullable=False)
+    two_fa_secret = Column(String, nullable=True)
+    backup_codes = Column(JSON, nullable=True)
 
     # Relationship to Watchlist
     watchlist_items = relationship("Watchlist", back_populates="user", cascade="all, delete-orphan")

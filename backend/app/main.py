@@ -5,6 +5,7 @@ from core.config import settings
 from core.cache import init_cache
 from core.logging import setup_logging
 from models import (
+    admin,
     user,
     stock,
     watchlist,
@@ -19,6 +20,7 @@ from models import (
     stock_screen,
     backtest,
     social,
+    tax,
 )
 
 # Create database tables
@@ -40,7 +42,12 @@ from routes.paper_trading_routes import router as paper_trading_router
 from routes.screener_routes import router as screener_router
 from routes.backtesting_routes import router as backtesting_router
 from routes.social_routes import router as social_router
+from routes.admin_routes import router as admin_router
+from routes.tax_routes import router as tax_router
+from routes.metrics_routes import router as metrics_router
 from services.market_seed_service import seed_market_data_if_empty
+from core.rate_limit import RateLimitMiddleware
+from core.request_metrics import RequestMetricsMiddleware
 
 app = FastAPI(title="Stock Tracking Dashboard API", version="1.0.0")
 
@@ -64,6 +71,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(RateLimitMiddleware, enabled=True)
+app.add_middleware(RequestMetricsMiddleware, enabled=True)
 
 # Register routes
 app.include_router(stock_router)
@@ -82,6 +91,9 @@ app.include_router(paper_trading_router)
 app.include_router(screener_router)
 app.include_router(backtesting_router)
 app.include_router(social_router)
+app.include_router(admin_router)
+app.include_router(tax_router)
+app.include_router(metrics_router)
 
 @app.get("/")
 async def root():

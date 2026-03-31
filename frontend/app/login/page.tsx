@@ -1,20 +1,19 @@
 "use client"
 
 import React, { useState } from "react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { TrendingUp, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import apiClient from "@/lib/apiClient"
+import { useAuth } from "@/hooks/useAuth"
 
 export default function LoginPage() {
+  const { login } = useAuth()
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -22,24 +21,10 @@ export default function LoginPage() {
     setError("")
 
     try {
-      const formData = new FormData()
-      formData.append("username", username)
-      formData.append("password", password)
-
-      const response = await apiClient.post("/auth/login", formData, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      })
-
-      localStorage.setItem("token", response.data.access_token)
-      router.push("/dashboard")
-    } catch (err: any) {
-      const detail = err.response?.data?.detail
-      if (Array.isArray(detail)) {
-        setError(detail[0]?.msg || "Validation error")
-      } else if (typeof detail === "string") {
-        setError(detail)
+      await login(username, password)
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message) {
+        setError(err.message)
       } else {
         setError("Login failed. Please check your credentials.")
       }

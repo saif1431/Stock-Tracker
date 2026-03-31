@@ -72,6 +72,9 @@ const QUICK_ACCESS_ITEMS: NavItem[] = [
   { label: "📈 Portfolio Performance", path: "/portfolio-performance" },
   { label: "🎯 Paper Trading", path: "/paper-trading" },
   { label: "🔎 Stock Screener", path: "/screener" },
+  { label: "🧾 Tax Tools", path: "/tax" },
+  { label: "🔐 Security (2FA)", path: "/security" },
+  { label: "⏱️ Rate Limit", path: "/rate-limit" },
 ]
 
 export default function Dashboard() {

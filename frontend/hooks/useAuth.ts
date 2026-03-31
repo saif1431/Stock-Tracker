@@ -9,6 +9,7 @@ export interface User {
   username: string
   email: string
   is_active: boolean
+  is_admin: boolean
 }
 
 interface LoginResponse {
@@ -21,6 +22,16 @@ interface RegisterResponse {
   username: string
   email: string
   is_active: boolean
+  is_admin: boolean
+}
+
+interface ErrorPayload {
+  response?: {
+    data?: {
+      detail?: string
+    }
+  }
+  message?: string
 }
 
 export function useAuth() {
@@ -36,7 +47,7 @@ export function useAuth() {
     router.push("/login")
   }, [router])
 
-  const fetchCurrentUser = useCallback(async (token: string) => {
+  const fetchCurrentUser = useCallback(async () => {
     try {
       const response = await apiClient.get<User>("/auth/me")
       setUser(response.data)
@@ -59,7 +70,7 @@ export function useAuth() {
     }
 
     try {
-      await fetchCurrentUser(token)
+      await fetchCurrentUser()
     } catch (error) {
       console.error("Auth check failed:", error)
       logout()
@@ -82,12 +93,14 @@ export function useAuth() {
       })
 
       localStorage.setItem("token", response.data.access_token)
-      await fetchCurrentUser(response.data.access_token)
-      router.push("/dashboard")
+      const currentUser = await fetchCurrentUser()
+      router.push(currentUser.is_admin ? "/admin" : "/dashboard")
 
       return response.data
-    } catch (err: any) {
-      const errorMsg = err.response?.data?.detail || "Login failed"
+    } catch (err: unknown) {
+      const parsed = err as ErrorPayload
+      const detail = parsed.response?.data?.detail
+      const errorMsg = typeof detail === "string" ? detail : (parsed.message || "Login failed")
       setError(errorMsg)
       throw new Error(errorMsg)
     } finally {
@@ -107,10 +120,12 @@ export function useAuth() {
       })
 
       // Auto-login after registration
-      const loginResponse = await login(username, password)
+      await login(username, password)
       return response.data
-    } catch (err: any) {
-      const errorMsg = err.response?.data?.detail || "Registration failed"
+    } catch (err: unknown) {
+      const parsed = err as ErrorPayload
+      const detail = parsed.response?.data?.detail
+      const errorMsg = typeof detail === "string" ? detail : (parsed.message || "Registration failed")
       setError(errorMsg)
       throw new Error(errorMsg)
     } finally {
@@ -120,7 +135,7 @@ export function useAuth() {
 
   useEffect(() => {
     checkAuth()
-  }, [])
+  }, [checkAuth])
 
   return {
     user,
