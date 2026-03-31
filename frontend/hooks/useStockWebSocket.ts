@@ -18,7 +18,11 @@ export function useStockWebSocket(symbol: string | null, onMessage?: (data: any)
     if (!symbol) return;
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    const defaultApiUrl =
+      process.env.NODE_ENV === 'production'
+        ? 'https://stock-tracker.fastapicloud.dev'
+        : 'http://localhost:8000';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || defaultApiUrl;
     const host = apiUrl.replace(/^https:\/\//, 'wss://').replace(/^http:\/\//, 'ws://');
     const socketUrl = `${host}/ws/stock/${symbol}`;
 

@@ -2,9 +2,13 @@ import axios, { AxiosError } from 'axios';
 import { handleAPIError, APIError, is401Error } from './errorHandler';
 
 let isRedirectingToLogin = false;
+const DEFAULT_API_URL =
+  process.env.NODE_ENV === 'production'
+    ? 'https://stock-tracker.fastapicloud.dev'
+    : 'http://localhost:8000';
 
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
