@@ -16,13 +16,30 @@ def _parse_list(value: str | None) -> list[str]:
         return []
     return [item.strip() for item in value.split(",") if item.strip()]
 
+
+def _resolve_database_url() -> str:
+    db_url = (os.getenv("DATABASE_URL") or "sqlite:///./stock_dashboard.db").strip()
+    environment = os.getenv("ENVIRONMENT", "development").strip().lower()
+
+    # SQLAlchemy 2 expects postgresql:// rather than postgres://
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+    # Cloud containers cannot reach developer localhost DBs.
+    if environment == "production":
+        lowered = db_url.lower()
+        if any(host in lowered for host in ("@localhost", "@127.0.0.1", "@0.0.0.0")):
+            return "sqlite:///./stock_dashboard.db"
+
+    return db_url
+
 class Settings:
     PROJECT_NAME: str = "Stock Tracking Dashboard"
     # Get API key with a default value (empty string if not found)
     STOCK_API_KEY: str = os.getenv("STOCK_API_KEY") or ""
 
     # Database and cache
-    DATABASE_URL: str = os.getenv("DATABASE_URL") or "sqlite:///./stock_dashboard.db"
+    DATABASE_URL: str = _resolve_database_url()
     REDIS_URL: str = os.getenv("REDIS_URL") or "redis://localhost:6379/0"
 
     # Environment

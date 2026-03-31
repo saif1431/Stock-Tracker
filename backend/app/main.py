@@ -1,5 +1,8 @@
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.exc import SQLAlchemyError
 from database.database import engine, Base, SessionLocal
 from core.config import settings
 from core.cache import init_cache
@@ -22,9 +25,6 @@ from models import (
     social,
     tax,
 )
-
-# Create database tables
-Base.metadata.create_all(bind=engine)
 
 from routes.stock_routes import router as stock_router
 from routes.watchlist_routes import router as watchlist_router
@@ -50,6 +50,7 @@ from core.rate_limit import RateLimitMiddleware
 from core.request_metrics import RequestMetricsMiddleware
 
 app = FastAPI(title="Stock Tracking Dashboard API", version="1.0.0")
+logger = logging.getLogger(__name__)
 
 
 @app.on_event("startup")
@@ -57,11 +58,18 @@ def seed_initial_market_data() -> None:
     setup_logging(settings.DEBUG)
     init_cache()
 
-    db = SessionLocal()
     try:
-        seed_market_data_if_empty(db)
-    finally:
-        db.close()
+        # Defer DB initialization to startup so module import is deployment-safe.
+        Base.metadata.create_all(bind=engine)
+
+        db = SessionLocal()
+        try:
+            seed_market_data_if_empty(db)
+        finally:
+            db.close()
+    except SQLAlchemyError as exc:
+        # Keep API process alive even if DB is temporarily unavailable.
+        logger.error("Database startup initialization failed: %s", exc)
 
 # Enable CORS for frontend communication
 app.add_middleware(
