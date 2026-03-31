@@ -12,8 +12,13 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 30000, // 30 seconds (increased from 10 for heavy calculations)
+  timeout: 30000,
 });
+
+// For easier debugging in production/vercel
+if (typeof window !== 'undefined') {
+  console.log('API Client initialized with baseURL:', apiClient.defaults.baseURL);
+}
 
 // Request interceptor
 apiClient.interceptors.request.use(
