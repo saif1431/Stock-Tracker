@@ -131,14 +131,15 @@ def login_for_access_token(
                 db.commit()
     except Exception as e:
         import traceback
-        print(f"DEBUG: Login Crash in Production: {str(e)}")
+        error_msg = f"Internal Server Error during login: {type(e).__name__} - {str(e)}"
+        print(f"DEBUG: Login Crash in Production: {error_msg}")
         print(traceback.format_exc())
-        # Re-raise if it's an HTTPException, otherwise raise 500
+        
         if isinstance(e, HTTPException):
             raise e
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Internal Server Error during login: {type(e).__name__}"
+            detail=error_msg
         )
     
     # Create access token
