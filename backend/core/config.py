@@ -18,7 +18,8 @@ def _parse_list(value: str | None) -> list[str]:
 
 
 def _resolve_database_url() -> str:
-    db_url = (os.getenv("DATABASE_URL") or "sqlite:///./stock_dashboard.db").strip()
+    # Prioritize STOCK_DATABASE_URL if set in production (e.g. Neon), then fallback to standard DATABASE_URL
+    db_url = (os.getenv("STOCK_DATABASE_URL") or os.getenv("DATABASE_URL") or "sqlite:///./stock_dashboard.db").strip()
     environment = os.getenv("ENVIRONMENT", "development").strip().lower()
 
     # SQLAlchemy 2 expects postgresql:// rather than postgres://
