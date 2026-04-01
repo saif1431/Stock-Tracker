@@ -49,6 +49,8 @@ class Settings:
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "https://stock-tracker-do6c.vercel.app",
+        "https://stock-tracker-dashboard.vercel.app",
+        "https://stock-tracker-saif1431.vercel.app",
     ]
     ALLOWED_HOSTS: list[str] = _parse_list(os.getenv("ALLOWED_HOSTS"))
 
