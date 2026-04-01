@@ -8,8 +8,8 @@ interface WebSocketMessage {
   timestamp: string;
 }
 
-export function useStockWebSocket(symbol: string | null, onMessage?: (data: any) => void) {
-  const [data, setData] = useState<any>(null);
+export function useStockWebSocket(symbol: string | null, onMessage?: (data: WebSocketMessage) => void) {
+  const [data, setData] = useState<WebSocketMessage | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const socketRef = useRef<WebSocket | null>(null);

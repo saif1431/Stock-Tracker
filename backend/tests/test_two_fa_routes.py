@@ -1,14 +1,8 @@
 import uuid
-
 import pyotp
-from fastapi.testclient import TestClient
-
-from app.main import app
-
-client = TestClient(app)
 
 
-def _register_and_login() -> tuple[str, str, str]:
+def _register_and_login(client) -> tuple[str, str, str]:
     suffix = uuid.uuid4().hex[:8]
     username = f"twofa_{suffix}"
     email = f"twofa_{suffix}@example.com"
@@ -26,8 +20,8 @@ def _register_and_login() -> tuple[str, str, str]:
     return username, password, login.json()["access_token"]
 
 
-def test_enable_and_use_two_fa_login():
-    username, password, token = _register_and_login()
+def test_enable_and_use_two_fa_login(client):
+    username, password, token = _register_and_login(client)
     headers = {"Authorization": f"Bearer {token}"}
 
     setup = client.post("/auth/2fa/setup", headers=headers)

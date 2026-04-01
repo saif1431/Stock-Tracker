@@ -1,13 +1,7 @@
 import uuid
 
-from fastapi.testclient import TestClient
 
-from app.main import app
-
-client = TestClient(app)
-
-
-def _register_and_login() -> str:
+def _register_and_login(client) -> str:
     suffix = uuid.uuid4().hex[:8]
     username = f"social_{suffix}"
     email = f"social_{suffix}@example.com"
@@ -28,8 +22,8 @@ def _register_and_login() -> str:
     return login.json()["access_token"]
 
 
-def test_social_discussion_create_and_list():
-    token = _register_and_login()
+def test_social_discussion_create_and_list(client):
+    token = _register_and_login(client)
     headers = {"Authorization": f"Bearer {token}"}
 
     create = client.post(

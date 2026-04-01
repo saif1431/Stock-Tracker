@@ -1,44 +1,35 @@
-from fastapi.testclient import TestClient
-
 from app.main import app
 from core.security import create_access_token, get_password_hash, verify_password
-from database.database import SessionLocal
 from models.user import User
 
-client = TestClient(app)
 
-
-def _upsert_user(username: str, email: str, is_admin: bool) -> User:
-    db = SessionLocal()
-    try:
-        user = db.query(User).filter(User.username == username).first()
-        if user:
-            user.is_admin = is_admin
-            user.is_active = True
-            user.is_banned = False
-            db.commit()
-            db.refresh(user)
-            return user
-
-        user = User(
-            username=username,
-            email=email,
-            hashed_password=get_password_hash("AdminPass123"),
-            is_active=True,
-            is_admin=is_admin,
-            subscription="free",
-        )
-        db.add(user)
+def _upsert_user(db, username: str, email: str, is_admin: bool) -> User:
+    user = db.query(User).filter(User.username == username).first()
+    if user:
+        user.is_admin = is_admin
+        user.is_active = True
+        user.is_banned = False
         db.commit()
         db.refresh(user)
         return user
-    finally:
-        db.close()
+
+    user = User(
+        username=username,
+        email=email,
+        hashed_password=get_password_hash("AdminPass123"),
+        is_active=True,
+        is_admin=is_admin,
+        subscription="free",
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
 
 
-def test_admin_dashboard_and_ban_user_flow():
-    admin_user = _upsert_user("admin_user", "admin_user@example.com", True)
-    target_user = _upsert_user("regular_user", "regular_user@example.com", False)
+def test_admin_dashboard_and_ban_user_flow(client, db_session):
+    admin_user = _upsert_user(db_session, "admin_user", "admin_user@example.com", True)
+    target_user = _upsert_user(db_session, "regular_user", "regular_user@example.com", False)
 
     admin_token = create_access_token(subject=admin_user.username)
     admin_headers = {"Authorization": f"Bearer {admin_token}"}
@@ -66,13 +57,9 @@ def test_admin_dashboard_and_ban_user_flow():
     )
     assert reset_response.status_code == 200
 
-    db = SessionLocal()
-    try:
-        refreshed = db.query(User).filter(User.id == target_user.id).first()
-        assert refreshed is not None
-        assert verify_password("UpdatedPass123", refreshed.hashed_password)
-    finally:
-        db.close()
+    refreshed = db_session.query(User).filter(User.id == target_user.id).first()
+    assert refreshed is not None
+    assert verify_password("UpdatedPass123", refreshed.hashed_password)
 
     deactivate_response = client.post(f"/admin/users/{target_user.id}/deactivate", headers=admin_headers)
     assert deactivate_response.status_code == 200

@@ -1,20 +1,15 @@
-import pytest
-from fastapi.testclient import TestClient
 from unittest.mock import patch
-from app.main import app
 from models.user import User
 from routes.auth_utils import get_current_user
-
-client = TestClient(app)
+from app.main import app
 
 
 def _fake_user() -> User:
     return User(id=1, username="route-test-user", email="route@example.com", hashed_password="x")
 
 
-app.dependency_overrides[get_current_user] = _fake_user
-
-def test_get_stock_route_success():
+def test_get_stock_route_success(client):
+    app.dependency_overrides[get_current_user] = _fake_user
     mock_data = {
         "Meta Data": {"1. Information": "Daily Prices"},
         "Time Series (Daily)": {
@@ -27,7 +22,9 @@ def test_get_stock_route_success():
         assert response.status_code == 200
         assert response.json() == mock_data
 
-def test_get_stock_route_error():
+
+def test_get_stock_route_error(client):
+    app.dependency_overrides[get_current_user] = _fake_user
     mock_error = {"error": "Invalid API call"}
     
     with patch('routes.stock_routes.get_daily_stock_data', return_value=mock_error):

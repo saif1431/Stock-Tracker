@@ -1,14 +1,8 @@
 import uuid
-
-from fastapi.testclient import TestClient
-
-from app.main import app
 from core.rate_limit import LimitConfig, RATE_LIMITS, reset_rate_limit_state
 
-client = TestClient(app)
 
-
-def _register_and_login() -> str:
+def _register_and_login(client) -> str:
     suffix = uuid.uuid4().hex[:8]
     username = f"ratelimit_{suffix}"
     email = f"ratelimit_{suffix}@example.com"
@@ -26,8 +20,8 @@ def _register_and_login() -> str:
     return login.json()["access_token"]
 
 
-def test_rate_limit_headers_and_429_response():
-    token = _register_and_login()
+def test_rate_limit_headers_and_429_response(client):
+    token = _register_and_login(client)
     headers = {"Authorization": f"Bearer {token}"}
 
     original = RATE_LIMITS["free"]

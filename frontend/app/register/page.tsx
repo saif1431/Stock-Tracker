@@ -29,8 +29,9 @@ export default function RegisterPage() {
         password,
       })
       router.push("/login")
-    } catch (err: any) {
-      const data = err.response?.data
+    } catch (err: unknown) {
+      const axiosError = err as any // Temporary cast until better validation
+      const data = axiosError.response?.data
       const detail = data?.detail
       console.log("Full Error Detail:", detail)
       if (Array.isArray(detail)) {
@@ -40,7 +41,7 @@ export default function RegisterPage() {
       } else if (data) {
         setError(JSON.stringify(data))
       } else {
-        setError(err.message || "Registration failed. Please try again.")
+        setError((err as Error).message || "Registration failed. Please try again.")
       }
     } finally {
       setIsLoading(false)

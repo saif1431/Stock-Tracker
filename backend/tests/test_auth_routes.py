@@ -1,11 +1,4 @@
-from fastapi.testclient import TestClient
-
-from app.main import app
-
-client = TestClient(app)
-
-
-def test_register_and_login_flow():
+def test_register_and_login_flow(client):
     username = "test_auth_user"
     email = "test_auth_user@example.com"
     password = "TestPass123"
@@ -15,8 +8,9 @@ def test_register_and_login_flow():
         json={"username": username, "email": email, "password": password},
     )
 
-    # If the test user already exists from prior runs, registration can return 400.
-    assert register_response.status_code in {201, 400}
+    # Registration status: 201 for success.
+    # Note: With proper isolation (drop_all/create_all), 400 shouldn't happen here anymore.
+    assert register_response.status_code == 201
 
     login_response = client.post(
         "/auth/login",

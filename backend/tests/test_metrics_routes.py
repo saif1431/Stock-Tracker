@@ -1,13 +1,7 @@
 import uuid
 
-from fastapi.testclient import TestClient
 
-from app.main import app
-
-client = TestClient(app)
-
-
-def test_rate_limit_metrics_endpoint():
+def test_rate_limit_metrics_endpoint(client):
     suffix = uuid.uuid4().hex[:8]
     username = f"metrics_{suffix}"
     email = f"metrics_{suffix}@example.com"
