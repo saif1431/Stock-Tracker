@@ -5,7 +5,7 @@ from models.user import User
 from models.alert import Alert, AlertType
 from services.alert_service import AlertService
 from routes.auth_utils import get_current_user
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, ConfigDict
 from typing import List, Optional
 from datetime import datetime
 
@@ -18,9 +18,7 @@ class AlertCreate(BaseModel):
     threshold_price: Optional[float] = None
     change_percent: Optional[float] = None
 
-    class Config:
-        use_enum_values = True
-    
+    model_config = ConfigDict(use_enum_values=True)
     @field_validator('symbol')
     @classmethod
     def validate_symbol(cls, v):
@@ -51,8 +49,7 @@ class AlertResponse(BaseModel):
     created_at: str
     updated_at: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
     
     @field_validator('alert_type', mode='before')
     @classmethod

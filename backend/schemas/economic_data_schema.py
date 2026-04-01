@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from typing import Optional
 
@@ -21,8 +21,7 @@ class EconomicIndicator(EconomicIndicatorBase):
     id: int
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class CommodityBase(BaseModel):
@@ -44,8 +43,7 @@ class Commodity(CommodityBase):
     id: int
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class CurrencyRateBase(BaseModel):
@@ -62,5 +60,4 @@ class CurrencyRate(CurrencyRateBase):
     id: int
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

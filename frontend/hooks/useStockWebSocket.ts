@@ -1,15 +1,8 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { StockData } from '@/services/stockService';
 
-interface WebSocketMessage {
-  symbol: string;
-  price: number;
-  change: number;
-  changePercent: number;
-  timestamp: string;
-}
-
-export function useStockWebSocket(symbol: string | null, onMessage?: (data: WebSocketMessage) => void) {
-  const [data, setData] = useState<WebSocketMessage | null>(null);
+export function useStockWebSocket(symbol: string | null, onMessage?: (data: StockData | { error: unknown }) => void) {
+  const [data, setData] = useState<StockData | { error: unknown } | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const socketRef = useRef<WebSocket | null>(null);

@@ -1,4 +1,5 @@
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -49,12 +50,9 @@ from services.market_seed_service import seed_market_data_if_empty
 from core.rate_limit import RateLimitMiddleware
 from core.request_metrics import RequestMetricsMiddleware
 
-app = FastAPI(title="Stock Tracking Dashboard API", version="1.0.0")
-logger = logging.getLogger(__name__)
-
-
-@app.on_event("startup")
-def seed_initial_market_data() -> None:
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup logic
     setup_logging(settings.DEBUG)
     init_cache()
 
@@ -70,6 +68,12 @@ def seed_initial_market_data() -> None:
     except SQLAlchemyError as exc:
         # Keep API process alive even if DB is temporarily unavailable.
         logger.error("Database startup initialization failed: %s", exc)
+    
+    yield
+    # Shutdown logic (if any) can go here
+
+app = FastAPI(title="Stock Tracking Dashboard API", version="1.0.0", lifespan=lifespan)
+logger = logging.getLogger(__name__)
 
 # Enable CORS for frontend communication
 app.add_middleware(

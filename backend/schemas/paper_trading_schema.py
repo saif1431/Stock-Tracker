@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class PaperAccountCreate(BaseModel):
@@ -16,8 +16,7 @@ class PaperAccountResponse(BaseModel):
     active: bool
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PaperTradeRequest(BaseModel):
@@ -45,8 +44,7 @@ class PaperTransactionResponse(BaseModel):
     total_value: float
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PaperAccountPerformanceResponse(BaseModel):
