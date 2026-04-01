@@ -14,7 +14,12 @@ def _parse_bool(value: str | None, default: bool) -> bool:
 def _parse_list(value: str | None) -> list[str]:
     if not value:
         return []
-    return [item.strip() for item in value.split(",") if item.strip()]
+    # Safely strip whitespace, quotes, and trailing slashes from each item
+    return [
+        item.strip().strip("'").strip('"').rstrip("/")
+        for item in value.split(",")
+        if item.strip()
+    ]
 
 
 def _resolve_database_url() -> str:
