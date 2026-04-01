@@ -83,51 +83,63 @@ def login_for_access_token(
     db: Session = Depends(get_db)
 ):
     """Login and get access token"""
-    # Find user by username or email
-    user = db.query(User).filter(
-        (User.username == form_data.username) | (User.email == form_data.username)
-    ).first()
-    
-    # Verify password
-    if not user or not security.verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username/email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User account is inactive"
-        )
-    if user.is_banned:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User account is banned"
-        )
-
-    if user.two_fa_enabled:
-        if not two_fa_token:
+    try:
+        # Find user by username or email
+        user = db.query(User).filter(
+            (User.username == form_data.username) | (User.email == form_data.username)
+        ).first()
+        
+        # Verify password
+        if not user or not security.verify_password(form_data.password, user.hashed_password):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="2FA token required",
+                detail="Invalid username/email or password",
+                headers={"WWW-Authenticate": "Bearer"},
             )
-
-        valid_totp = bool(user.two_fa_secret) and TwoFAService.verify_token(user.two_fa_secret, two_fa_token)
-        backup_codes = list(user.backup_codes or [])
-        used_backup_code = two_fa_token in backup_codes
-
-        if not valid_totp and not used_backup_code:
+        
+        if not user.is_active:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid 2FA token",
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="User account is inactive"
+            )
+        if user.is_banned:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="User account is banned"
             )
 
-        if used_backup_code:
-            backup_codes.remove(two_fa_token)
-            user.backup_codes = backup_codes
-            db.commit()
+        if user.two_fa_enabled:
+            if not two_fa_token:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="2FA token required",
+                )
+
+            valid_totp = bool(user.two_fa_secret) and TwoFAService.verify_token(user.two_fa_secret, two_fa_token)
+            backup_codes = list(user.backup_codes or [])
+            used_backup_code = two_fa_token in backup_codes
+
+            if not valid_totp and not used_backup_code:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid 2FA token",
+                )
+
+            if used_backup_code:
+                backup_codes.remove(two_fa_token)
+                user.backup_codes = backup_codes
+                db.commit()
+    except Exception as e:
+        import traceback
+        print(f"DEBUG: Login Crash in Production: {str(e)}")
+        print(traceback.format_exc())
+        # Re-raise if it's an HTTPException, otherwise raise 500
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal Server Error during login: {type(e).__name__}"
+        )
     
     # Create access token
     access_token_expires = timedelta(minutes=security.ACCESS_TOKEN_EXPIRE_MINUTES)
