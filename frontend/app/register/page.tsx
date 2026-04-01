@@ -7,6 +7,7 @@ import { TrendingUp, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { AxiosError } from "axios"
 import apiClient from "@/lib/apiClient"
 
 export default function RegisterPage() {
@@ -30,7 +31,7 @@ export default function RegisterPage() {
       })
       router.push("/login")
     } catch (err: unknown) {
-      const axiosError = err as any // Temporary cast until better validation
+      const axiosError = err as AxiosError<{ detail: unknown }>
       const data = axiosError.response?.data
       const detail = data?.detail
       console.log("Full Error Detail:", detail)
