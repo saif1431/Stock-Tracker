@@ -57,6 +57,10 @@ async def lifespan(app: FastAPI):
     init_cache()
 
     try:
+        # Sync the database schema (add missing columns)
+        from sync_database_schema import sync_user_schema
+        sync_user_schema()
+
         # Defer DB initialization to startup so module import is deployment-safe.
         Base.metadata.create_all(bind=engine)
 
