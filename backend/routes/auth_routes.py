@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from database.database import get_db
 from core import security
+from core.config import settings
 from models.user import User
 from routes.auth_utils import get_current_user
 from schemas.token_schema import Token
@@ -89,8 +90,27 @@ def login_for_access_token(
             (User.username == form_data.username) | (User.email == form_data.username)
         ).first()
         
-        # Verify password
-        if not user or not security.verify_password(form_data.password, user.hashed_password):
+        # Verify password (admin accounts can use a dedicated production password)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid username/email or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        if settings.is_production and user.is_admin:
+            if not settings.ADMIN_PRODUCTION_PASSWORD:
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="Admin login is not configured for production",
+                )
+            if form_data.password != settings.ADMIN_PRODUCTION_PASSWORD:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid username/email or password",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+        elif not security.verify_password(form_data.password, user.hashed_password):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid username/email or password",
