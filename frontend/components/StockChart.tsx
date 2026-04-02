@@ -2,7 +2,6 @@
 
 import React from "react"
 import {
-  LineChart,
   Line,
   XAxis,
   YAxis,
@@ -39,10 +38,10 @@ export function StockChart({
   onBuy,
 }: StockChartProps) {
   const tooltipTheme = {
-    backgroundColor: "var(--color-card)",
-    border: "1px solid var(--color-border)",
-    borderRadius: "10px",
-    color: "var(--color-card-foreground)",
+    backgroundColor: "#0f172a",
+    border: "1px solid #475569",
+    borderRadius: "8px",
+    color: "#f8fafc",
   }
 
   const [isBuying, setIsBuying] = React.useState(false)
@@ -57,12 +56,12 @@ export function StockChart({
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className="border-slate-700 bg-slate-800/70 shadow-none">
         <CardHeader>
-          <CardTitle>{symbol} Price History</CardTitle>
+          <CardTitle className="text-slate-100">{symbol} Price History</CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-96">
-          <p className="text-muted-foreground">Loading chart...</p>
+          <div className="h-72 w-full animate-pulse rounded-md bg-slate-900" />
         </CardContent>
       </Card>
     )
@@ -70,30 +69,30 @@ export function StockChart({
 
   if (!data || data.length === 0) {
     return (
-      <Card>
+      <Card className="border-slate-700 bg-slate-800/70 shadow-none">
         <CardHeader>
-          <CardTitle>{symbol} Price History</CardTitle>
-          <CardDescription>No data available</CardDescription>
+          <CardTitle className="text-slate-100">{symbol} Price History</CardTitle>
+          <CardDescription className="text-slate-400">No data available</CardDescription>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-96">
-          <p className="text-muted-foreground">Search for a stock to view its chart</p>
+          <p className="text-slate-400">Search for a stock to view its chart</p>
         </CardContent>
       </Card>
     )
   }
 
   return (
-    <Card>
+    <Card className="border-slate-700 bg-slate-800/70 shadow-none">
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <div>
-          <CardTitle>{symbol} Price History</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-slate-100">{symbol} Price History</CardTitle>
+          <CardDescription className="text-slate-400">
             {data.length} data points • Last updated: {data[data.length - 1].date}
           </CardDescription>
         </div>
         <div className="flex items-center gap-2">
           {onAddWatchlist && (
-            <Button variant="outline" size="sm" onClick={onAddWatchlist} className="gap-1">
+            <Button variant="outline" size="sm" onClick={onAddWatchlist} className="gap-1 border-slate-600 bg-slate-900 text-slate-200 hover:bg-slate-700">
               <Plus className="w-4 h-4" />
               Watch
             </Button>
@@ -106,17 +105,17 @@ export function StockChart({
                     type="number" 
                     value={buyQuantity} 
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBuyQuantity(e.target.value)} 
-                    className="w-20 h-8"
+                    className="data-num h-8 w-20 border-slate-600 bg-slate-900 text-slate-100"
                     placeholder="Qty"
                   />
                   <Input 
                     type="number" 
                     value={buyPrice} 
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBuyPrice(e.target.value)} 
-                    className="w-24 h-8"
+                    className="data-num h-8 w-24 border-slate-600 bg-slate-900 text-slate-100"
                     placeholder="Price"
                   />
-                  <Button size="sm" onClick={() => {
+                  <Button size="sm" className="bg-blue-600 text-white hover:bg-blue-500" onClick={() => {
                     const qty = parseFloat(buyQuantity);
                     const price = parseFloat(buyPrice);
                     if (isNaN(qty) || isNaN(price) || qty <= 0 || price <= 0) {
@@ -128,12 +127,12 @@ export function StockChart({
                   }}>
                     Confirm
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => setIsBuying(false)}>
+                  <Button variant="ghost" size="sm" className="text-slate-300 hover:bg-slate-700" onClick={() => setIsBuying(false)}>
                     Cancel
                   </Button>
                 </div>
               ) : (
-                <Button size="sm" onClick={() => setIsBuying(true)} className="gap-1">
+                <Button size="sm" onClick={() => setIsBuying(true)} className="gap-1 bg-blue-600 text-white hover:bg-blue-500">
                   <DollarSign className="w-4 h-4" />
                   Buy
                 </Button>
@@ -143,23 +142,23 @@ export function StockChart({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="mb-4 p-3 bg-muted/50 rounded-lg">
+        <div className="mb-4 rounded-lg border border-slate-700 bg-slate-900 p-3">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
             <div>
-              <p className="text-muted-foreground text-xs">Current Price</p>
-              <p className="font-bold text-lg">${data[data.length - 1]?.price.toFixed(2)}</p>
+              <p className="text-xs text-slate-400">Current Price</p>
+              <p className="data-num text-lg font-bold text-slate-100">${data[data.length - 1]?.price.toFixed(2)}</p>
             </div>
             <div>
-              <p className="text-muted-foreground text-xs">High</p>
-              <p className="font-bold text-green-600">${Math.max(...data.map(d => d.price)).toFixed(2)}</p>
+              <p className="text-xs text-slate-400">High</p>
+              <p className="data-num font-bold text-green-500">${Math.max(...data.map(d => d.price)).toFixed(2)}</p>
             </div>
             <div>
-              <p className="text-muted-foreground text-xs">Low</p>
-              <p className="font-bold text-red-600">${Math.min(...data.map(d => d.price)).toFixed(2)}</p>
+              <p className="text-xs text-slate-400">Low</p>
+              <p className="data-num font-bold text-red-500">${Math.min(...data.map(d => d.price)).toFixed(2)}</p>
             </div>
             <div>
-              <p className="text-muted-foreground text-xs">Change</p>
-              <p className={`font-bold ${(data[data.length - 1]?.price - data[0]?.price) >= 0 ? "text-green-600" : "text-red-600"}`}>
+              <p className="text-xs text-slate-400">Change</p>
+              <p className={`data-num font-bold ${(data[data.length - 1]?.price - data[0]?.price) >= 0 ? "text-green-500" : "text-red-500"}`}>
                 {(data[data.length - 1]?.price - data[0]?.price) >= 0 ? "+" : ""}{((data[data.length - 1]?.price - data[0]?.price) / data[0]?.price * 100).toFixed(2)}%
               </p>
             </div>
@@ -168,16 +167,12 @@ export function StockChart({
         
         <ResponsiveContainer width="100%" height={400}>
           <ComposedChart data={data} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-            <defs>
-              <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <CartesianGrid strokeDasharray="2 6" stroke="#334155" />
             <XAxis 
               dataKey="date" 
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 12, fill: "#94a3b8" }}
+              axisLine={{ stroke: "#475569" }}
+              tickLine={{ stroke: "#475569" }}
               tickFormatter={(date: string) => {
                 // Show every 5th date to avoid crowding
                 const index = data.findIndex(d => d.date === date);
@@ -185,19 +180,21 @@ export function StockChart({
               }}
             />
             <YAxis 
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 12, fill: "#94a3b8" }}
               domain={['dataMin - 5', 'dataMax + 5']}
-              label={{ value: 'Price ($)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } }}
+              axisLine={{ stroke: "#475569" }}
+              tickLine={{ stroke: "#475569" }}
+              label={{ value: 'Price ($)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#94a3b8' } }}
             />
             <Tooltip
               contentStyle={tooltipTheme}
-              labelStyle={{ color: "var(--color-muted-foreground)" }}
-              itemStyle={{ color: "var(--color-card-foreground)" }}
-              cursor={{ stroke: "var(--color-primary)", strokeOpacity: 0.35, strokeWidth: 1 }}
+              labelStyle={{ color: "#94a3b8" }}
+              itemStyle={{ color: "#f8fafc" }}
+              cursor={{ stroke: "#3b82f6", strokeOpacity: 0.35, strokeWidth: 1 }}
               formatter={(value) => [`$${typeof value === "number" ? value.toFixed(2) : value}`, '']}
               labelFormatter={(label) => `Date: ${label}`}
             />
-            <Legend wrapperStyle={{ paddingTop: '20px' }} />
+            <Legend wrapperStyle={{ paddingTop: '20px', color: '#94a3b8' }} />
             
             {/* High Price Line */}
             <Line
@@ -215,7 +212,7 @@ export function StockChart({
             <Line
               type="monotone"
               dataKey="price"
-              stroke="#3b82f6"
+              stroke="#10b981"
               dot={(props) => {
                 const { cx, cy, payload } = props;
                 const index = data.findIndex(d => d.date === payload.date);
@@ -227,7 +224,7 @@ export function StockChart({
                       cy={cy}
                       r={4}
                       fill="#3b82f6"
-                      stroke="#fff"
+                      stroke="#0f172a"
                       strokeWidth={2}
                     />
                   );

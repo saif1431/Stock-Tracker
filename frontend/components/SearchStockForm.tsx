@@ -36,10 +36,10 @@ export function SearchStockForm({ onSearch, isLoading = false }: SearchStockForm
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Search Stock</CardTitle>
-        <CardDescription>Enter a stock symbol to view its data</CardDescription>
+    <Card className="border-slate-700 bg-slate-800/70 shadow-none">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-xl text-slate-100">Search Stock</CardTitle>
+        <CardDescription className="text-slate-400">Enter ticker symbols to load real-time pricing and indicators.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="flex gap-2 relative">
@@ -54,16 +54,16 @@ export function SearchStockForm({ onSearch, isLoading = false }: SearchStockForm
               onFocus={() => setShowAutocomplete(true)}
               onBlur={() => setTimeout(() => setShowAutocomplete(false), 200)}
               disabled={isLoading}
-              className="w-full"
+              className="data-num w-full border-slate-600 bg-slate-900 text-slate-100 placeholder:text-slate-500"
             />
             {showAutocomplete && symbol.length > 0 && filteredSymbols.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-card border rounded-lg shadow-lg z-50 overflow-hidden">
+              <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-lg border border-slate-700 bg-slate-900 shadow-lg">
                 {filteredSymbols.map((s) => (
                   <button
                     key={s}
                     type="button"
                     onClick={() => handleSelectSymbol(s)}
-                    className="w-full px-4 py-2 text-left hover:bg-primary/10 transition-colors text-sm font-medium"
+                    className="data-num w-full px-4 py-2 text-left text-sm font-medium text-slate-200 transition-colors hover:bg-slate-800"
                   >
                     {s}
                   </button>
@@ -74,7 +74,7 @@ export function SearchStockForm({ onSearch, isLoading = false }: SearchStockForm
           <Button
             type="submit"
             disabled={isLoading}
-            className="gap-2"
+            className="gap-2 bg-blue-600 text-white hover:bg-blue-500"
           >
             <Search className="w-4 h-4" />
             {isLoading ? "Loading..." : "Search"}

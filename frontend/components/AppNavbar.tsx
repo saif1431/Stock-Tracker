@@ -47,15 +47,15 @@ export function AppNavbar() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+    <header className="sticky top-0 z-40 border-b border-slate-700/80 bg-slate-900/95 backdrop-blur">
       <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-3">
           <button
             onClick={() => router.push("/dashboard")}
             className="inline-flex items-center gap-2 text-left"
           >
-            <TrendingUp className="w-8 h-8 text-primary" />
-            <span className="font-semibold text-xl tracking-tight">Stock Tracker</span>
+            <TrendingUp className="w-7 h-7 text-blue-500" />
+            <span className="text-lg font-semibold tracking-tight text-slate-100">Stock Tracker</span>
           </button>
 
           <div className="flex items-center gap-2">
@@ -75,24 +75,24 @@ export function AppNavbar() {
                 </div>
 
                 <details className="relative group">
-                  <summary className="list-none cursor-pointer inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground hover:bg-accent">
+                  <summary className="list-none cursor-pointer inline-flex items-center gap-2 rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-sm font-medium text-slate-100 hover:border-slate-600 hover:bg-slate-700/70">
                     Menu
                     <ChevronDown className="w-4 h-4" />
                   </summary>
-                  <div className="absolute right-0 mt-2 w-56 rounded-lg border border-border bg-card shadow-lg p-2 z-20">
+                  <div className="absolute right-0 z-20 mt-2 w-56 rounded-lg border border-slate-700 bg-slate-900 p-2 shadow-xl">
                     {[...PRIMARY_NAV_ITEMS, ...MORE_NAV_ITEMS].map((item) => (
                       <button
                         key={item.path}
                         onClick={() => router.push(item.path)}
-                        className={`w-full text-left rounded-md px-3 py-2 text-sm hover:bg-accent ${pathname === item.path ? "bg-accent font-medium" : ""}`}
+                        className={`w-full rounded-md px-3 py-2 text-left text-sm text-slate-200 hover:bg-slate-800 ${pathname === item.path ? "bg-slate-800 font-medium" : ""}`}
                       >
                         {item.label}
                       </button>
                     ))}
-                    <div className="my-1 border-t border-border" />
+                    <div className="my-1 border-t border-slate-700" />
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left rounded-md px-3 py-2 text-sm text-destructive hover:bg-destructive/10 inline-flex items-center gap-2"
+                      className="inline-flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-red-400 hover:bg-red-500/10"
                     >
                       <LogOut className="w-4 h-4" />
                       Logout

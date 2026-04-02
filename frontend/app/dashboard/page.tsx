@@ -16,6 +16,7 @@ import { PortfolioSection, PortfolioItem } from "@/components/PortfolioSection"
 import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Toast, useToast } from "@/components/ui/Toast"
+import { MarketSummaryBar } from "@/components/MarketSummaryBar"
 
 interface WatchlistItem {
   symbol: string
@@ -54,31 +55,25 @@ const MOCK_CHART_DATA: ChartData[] = [
   { date: "Jan 10", price: 162.8 },
 ]
 
-const MOCK_WATCHLIST: WatchlistItem[] = [
-  { symbol: "AAPL", price: 150.25, change: 2.5, changePercent: 1.69 },
-  { symbol: "GOOGL", price: 140.5, change: -1.2, changePercent: -0.85 },
-  { symbol: "MSFT", price: 380.2, change: 5.3, changePercent: 1.42 },
-]
-
 interface NavItem {
   label: string
   path: string
 }
 
 const QUICK_ACCESS_ITEMS: NavItem[] = [
-  { label: "📈 Company Fundamentals", path: "/fundamentals" },
-  { label: "📰 Latest News", path: "/news" },
-  { label: "🌍 Market Overview", path: "/market-overview" },
-  { label: "📈 Portfolio Performance", path: "/portfolio-performance" },
-  { label: "🎯 Paper Trading", path: "/paper-trading" },
-  { label: "🔎 Stock Screener", path: "/screener" },
-  { label: "🧾 Tax Tools", path: "/tax" },
-  { label: "🔐 Security (2FA)", path: "/security" },
-  { label: "⏱️ Rate Limit", path: "/rate-limit" },
+  { label: "Company Fundamentals", path: "/fundamentals" },
+  { label: "Latest News", path: "/news" },
+  { label: "Market Overview", path: "/market-overview" },
+  { label: "Portfolio Performance", path: "/portfolio-performance" },
+  { label: "Paper Trading", path: "/paper-trading" },
+  { label: "Stock Screener", path: "/screener" },
+  { label: "Tax Tools", path: "/tax" },
+  { label: "Security (2FA)", path: "/security" },
+  { label: "Rate Limit", path: "/rate-limit" },
 ]
 
 export default function Dashboard() {
-  const { loading, logout } = useAuth()
+  const { loading } = useAuth()
   const { toast, showToast, hideToast } = useToast()
   const router = useRouter()
   const [currentStock, setCurrentStock] = useState<string>("AAPL")
@@ -206,6 +201,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
+      <MarketSummaryBar loading={false} />
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -217,17 +213,17 @@ export default function Dashboard() {
             {/* Quick Access Navigation */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Quick Access</h2>
-                <p className="text-xs text-muted-foreground">More tools available in the More menu</p>
+                <h2 className="text-lg font-semibold text-slate-100">Quick Access</h2>
+                <p className="text-xs text-slate-400">Core modules and analysis tools</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {QUICK_ACCESS_ITEMS.map((item) => (
                   <button
                     key={item.path}
                     onClick={() => router.push(item.path)}
-                    className="p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors text-left"
+                    className="rounded-lg border border-slate-700 bg-slate-800/70 p-4 text-left transition-colors hover:border-slate-600 hover:bg-slate-800"
                   >
-                    <h3 className="font-semibold">{item.label}</h3>
+                    <h3 className="font-semibold text-slate-200">{item.label}</h3>
                   </button>
                 ))}
               </div>
@@ -270,9 +266,9 @@ export default function Dashboard() {
               ) : (
                 <Button 
                   onClick={() => setShowCreateAlertDialog(true)}
-                  className="w-full"
+                  className="w-full bg-blue-600 text-white hover:bg-blue-500"
                 >
-                  🔔 Create Price Alert for {currentStock}
+                  Create Price Alert for {currentStock}
                 </Button>
               )}
               <AlertsList refreshTrigger={alertsRefreshTrigger} />
@@ -280,7 +276,7 @@ export default function Dashboard() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-6 lg:sticky lg:top-32 lg:self-start">
             <WatchlistSidebar
               items={watchlist}
               onSelectStock={handleSelectFromWatchlist}
