@@ -78,6 +78,10 @@ export default function ScreenerPage() {
         <Card>
           <CardHeader><CardTitle className="text-xl">Screener Criteria</CardTitle></CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <input className="rounded-md border bg-background px-3 py-2" placeholder="Min Price" type="number" onChange={(e) => setField('min_price', e.target.value)} />
+            <input className="rounded-md border bg-background px-3 py-2" placeholder="Max Price" type="number" onChange={(e) => setField('max_price', e.target.value)} />
+            <input className="rounded-md border bg-background px-3 py-2" placeholder="Min Volume" type="number" onChange={(e) => setField('min_volume', e.target.value)} />
+            <input className="rounded-md border bg-background px-3 py-2" placeholder="Min Price Change %" type="number" onChange={(e) => setField('min_price_change_pct', e.target.value)} />
             <input className="rounded-md border bg-background px-3 py-2" placeholder="Min Market Cap" type="number" onChange={(e) => setField('min_market_cap', e.target.value)} />
             <input className="rounded-md border bg-background px-3 py-2" placeholder="Max PE Ratio" type="number" onChange={(e) => setField('max_pe_ratio', e.target.value)} />
             <input className="rounded-md border bg-background px-3 py-2" placeholder="Min Revenue Growth %" type="number" onChange={(e) => setField('min_revenue_growth', e.target.value)} />
@@ -101,6 +105,9 @@ export default function ScreenerPage() {
                 <thead className="text-muted-foreground">
                   <tr>
                     <th className="text-left py-2">Symbol</th>
+                    <th className="text-right py-2">Price</th>
+                    <th className="text-right py-2">Volume</th>
+                    <th className="text-right py-2">Change %</th>
                     <th className="text-right py-2">Market Cap</th>
                     <th className="text-right py-2">PE</th>
                     <th className="text-right py-2">Rev Growth</th>
@@ -112,6 +119,9 @@ export default function ScreenerPage() {
                   {results.map((r) => (
                     <tr key={r.symbol} className="border-t">
                       <td className="py-2 font-medium">{r.symbol}</td>
+                      <td className="py-2 text-right">{r.current_price?.toFixed(2) ?? '-'}</td>
+                      <td className="py-2 text-right">{r.volume?.toLocaleString() ?? '-'}</td>
+                      <td className="py-2 text-right">{r.price_change_pct?.toFixed(2) ?? '-'}%</td>
                       <td className="py-2 text-right">{r.market_cap?.toLocaleString() ?? '-'}</td>
                       <td className="py-2 text-right">{r.pe_ratio?.toFixed(2) ?? '-'}</td>
                       <td className="py-2 text-right">{r.revenue_growth?.toFixed(2) ?? '-'}%</td>

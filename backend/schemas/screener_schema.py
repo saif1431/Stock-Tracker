@@ -4,6 +4,10 @@ from pydantic import BaseModel, Field, ConfigDict
 
 
 class ScreenerCriteria(BaseModel):
+    min_price: Optional[float] = None
+    max_price: Optional[float] = None
+    min_volume: Optional[float] = None
+    min_price_change_pct: Optional[float] = None
     min_market_cap: Optional[float] = None
     max_market_cap: Optional[float] = None
     min_pe_ratio: Optional[float] = None
@@ -23,6 +27,9 @@ class ScreenerSaveRequest(BaseModel):
 
 class ScreenerResultItem(BaseModel):
     symbol: str
+    current_price: Optional[float] = None
+    volume: Optional[float] = None
+    price_change_pct: Optional[float] = None
     market_cap: Optional[float] = None
     pe_ratio: Optional[float] = None
     dividend_yield: Optional[float] = None

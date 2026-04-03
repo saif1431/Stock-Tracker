@@ -53,6 +53,20 @@ export default function TaxPage() {
     }
   }
 
+  const handleDownloadPdf = async () => {
+    try {
+      const pdfBlob = await taxService.downloadPdf(year)
+      const url = URL.createObjectURL(pdfBlob)
+      const anchor = document.createElement("a")
+      anchor.href = url
+      anchor.download = `tax_report_${year}.pdf`
+      anchor.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "PDF download failed")
+    }
+  }
+
   useEffect(() => {
     loadTaxData()
   }, [loadTaxData])
@@ -75,6 +89,7 @@ export default function TaxPage() {
           />
           <Button variant="outline" onClick={loadTaxData}>Refresh</Button>
           <Button onClick={handleDownloadCsv}>Export CSV</Button>
+          <Button variant="outline" onClick={handleDownloadPdf}>Export PDF</Button>
         </div>
       </div>
 

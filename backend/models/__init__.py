@@ -10,6 +10,7 @@ from models.backtest import BacktestRun
 from models.social import UserProfile, PortfolioShare, Follow, StockDiscussion, DiscussionComment
 from models.admin import AdminLog
 from models.tax import CapitalGain
+from models.notification import Notification
 
 __all__ = [
     "User",
@@ -31,4 +32,5 @@ __all__ = [
     "DiscussionComment",
     "AdminLog",
     "CapitalGain",
+    "Notification",
 ]

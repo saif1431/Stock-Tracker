@@ -27,6 +27,8 @@ class User(Base):
     alerts = relationship("Alert", back_populates="user", cascade="all, delete-orphan")
     # Relationship to Transactions
     transactions = relationship("Transaction", back_populates="user", cascade="all, delete-orphan")
+    # Relationship to Notifications
+    notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")
 
     # Social relationships
     profile = relationship("UserProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")

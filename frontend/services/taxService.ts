@@ -86,4 +86,9 @@ export const taxService = {
     const response = await apiClient.get(`/tax/export/${year}`, { responseType: "blob" })
     return response.data as Blob
   },
+
+  async downloadPdf(year: number): Promise<Blob> {
+    const response = await apiClient.get(`/tax/export/${year}/pdf`, { responseType: "blob" })
+    return response.data as Blob
+  },
 }

@@ -1,6 +1,10 @@
 import apiClient from '@/lib/apiClient'
 
 export interface ScreenerCriteria {
+  min_price?: number
+  max_price?: number
+  min_volume?: number
+  min_price_change_pct?: number
   min_market_cap?: number
   max_market_cap?: number
   min_pe_ratio?: number
@@ -14,6 +18,9 @@ export interface ScreenerCriteria {
 
 export interface ScreenerResult {
   symbol: string
+  current_price?: number
+  volume?: number
+  price_change_pct?: number
   market_cap?: number
   pe_ratio?: number
   dividend_yield?: number

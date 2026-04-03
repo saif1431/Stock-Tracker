@@ -35,6 +35,8 @@ export default function BacktestingPage() {
   const [shortWindow, setShortWindow] = useState(20)
   const [longWindow, setLongWindow] = useState(50)
   const [initialCapital, setInitialCapital] = useState(10000)
+  const [feePct, setFeePct] = useState(0)
+  const [slippageBps, setSlippageBps] = useState(0)
 
   const [result, setResult] = useState<BacktestResult | null>(null)
   const [savedRuns, setSavedRuns] = useState<Array<{ id: number; symbol: string; total_return_pct: number; created_at: string }>>([])
@@ -67,6 +69,8 @@ export default function BacktestingPage() {
         short_window: shortWindow,
         long_window: longWindow,
         initial_capital: initialCapital,
+        fee_pct: feePct,
+        slippage_bps: slippageBps,
         save_run: saveRun,
         run_name: `${symbol} ${shortWindow}/${longWindow}`,
       })
@@ -108,6 +112,8 @@ export default function BacktestingPage() {
             <input className="rounded-md border bg-background px-3 py-2" type="number" value={shortWindow} onChange={(e) => setShortWindow(Number(e.target.value))} placeholder="Short window" />
             <input className="rounded-md border bg-background px-3 py-2" type="number" value={longWindow} onChange={(e) => setLongWindow(Number(e.target.value))} placeholder="Long window" />
             <input className="rounded-md border bg-background px-3 py-2" type="number" value={initialCapital} onChange={(e) => setInitialCapital(Number(e.target.value))} placeholder="Initial capital" />
+            <input className="rounded-md border bg-background px-3 py-2" type="number" value={feePct} min={0} step={0.01} onChange={(e) => setFeePct(Number(e.target.value))} placeholder="Fee % per trade" />
+            <input className="rounded-md border bg-background px-3 py-2" type="number" value={slippageBps} min={0} step={1} onChange={(e) => setSlippageBps(Number(e.target.value))} placeholder="Slippage (bps)" />
             <div className="md:col-span-3 flex gap-3">
               <Button onClick={() => runBacktest(false)}>Run Backtest</Button>
               <Button variant="outline" onClick={() => runBacktest(true)}>Run and Save</Button>

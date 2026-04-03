@@ -7,6 +7,8 @@ export interface BacktestRequest {
   short_window: number
   long_window: number
   initial_capital: number
+  fee_pct?: number
+  slippage_bps?: number
   save_run?: boolean
   run_name?: string
 }
@@ -17,6 +19,8 @@ export interface BacktestResult {
   parameters: {
     short_window: number
     long_window: number
+    fee_pct?: number
+    slippage_bps?: number
   }
   initial_capital: number
   final_capital: number

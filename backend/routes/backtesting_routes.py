@@ -18,6 +18,8 @@ class BacktestRequest(BaseModel):
     short_window: int = Field(default=20, ge=2, le=200)
     long_window: int = Field(default=50, ge=3, le=400)
     initial_capital: float = Field(default=10000, gt=0)
+    fee_pct: float = Field(default=0, ge=0, le=5)
+    slippage_bps: float = Field(default=0, ge=0, le=250)
     save_run: bool = False
     run_name: str | None = None
 
@@ -40,6 +42,8 @@ def run_backtest(
             short_window=payload.short_window,
             long_window=payload.long_window,
             initial_capital=payload.initial_capital,
+            fee_pct=payload.fee_pct,
+            slippage_bps=payload.slippage_bps,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc

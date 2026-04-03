@@ -1,4 +1,5 @@
 import logging
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -25,6 +26,7 @@ from models import (
     backtest,
     social,
     tax,
+    notification,
 )
 
 from routes.stock_routes import router as stock_router
@@ -46,12 +48,15 @@ from routes.social_routes import router as social_router
 from routes.admin_routes import router as admin_router
 from routes.tax_routes import router as tax_router
 from routes.metrics_routes import router as metrics_router
+from routes.notification_routes import router as notification_router
 from services.market_seed_service import seed_market_data_if_empty
+from services.alert_monitor_service import run_alert_monitor_forever
 from core.rate_limit import RateLimitMiddleware
 from core.request_metrics import RequestMetricsMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    alert_monitor_task = None
     # Startup logic
     setup_logging(settings.DEBUG)
     init_cache()
@@ -72,9 +77,17 @@ async def lifespan(app: FastAPI):
     except SQLAlchemyError as exc:
         # Keep API process alive even if DB is temporarily unavailable.
         logger.error("Database startup initialization failed: %s", exc)
+
+    if settings.ALERT_MONITOR_ENABLED:
+        alert_monitor_task = asyncio.create_task(run_alert_monitor_forever(SessionLocal))
     
     yield
-    # Shutdown logic (if any) can go here
+    if alert_monitor_task:
+        alert_monitor_task.cancel()
+        try:
+            await alert_monitor_task
+        except asyncio.CancelledError:
+            pass
 
 app = FastAPI(title="Stock Tracking Dashboard API", version="1.0.0", lifespan=lifespan)
 logger = logging.getLogger(__name__)
@@ -110,6 +123,7 @@ app.include_router(social_router)
 app.include_router(admin_router)
 app.include_router(tax_router)
 app.include_router(metrics_router)
+app.include_router(notification_router)
 
 @app.get("/")
 async def root():

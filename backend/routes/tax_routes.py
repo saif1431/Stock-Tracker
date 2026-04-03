@@ -1,5 +1,6 @@
 from collections import defaultdict, deque
 from datetime import datetime
+from io import BytesIO
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
@@ -14,6 +15,8 @@ from services.stock_service import get_daily_stock_data
 
 import csv
 from io import StringIO
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
 router = APIRouter(prefix="/tax", tags=["tax"])
 
@@ -254,4 +257,63 @@ def export_tax_csv(
         iter([output.getvalue()]),
         media_type="text/csv",
         headers={"Content-Disposition": f"attachment; filename=tax_report_{year}.csv"},
+    )
+
+
+@router.get("/export/{year}/pdf")
+def export_tax_pdf(
+    year: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    data = _compute_capital_gains(_all_user_transactions(db, current_user.id), year)
+
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+
+    y = height - 40
+    pdf.setFont("Helvetica-Bold", 14)
+    pdf.drawString(40, y, f"Tax Report {year}")
+    y -= 24
+
+    pdf.setFont("Helvetica", 10)
+    pdf.drawString(40, y, f"Short-term gains: {data['short_term_gains']:.2f}")
+    y -= 16
+    pdf.drawString(40, y, f"Long-term gains: {data['long_term_gains']:.2f}")
+    y -= 16
+    pdf.drawString(40, y, f"Total gain: {data['total_gain']:.2f}")
+    y -= 24
+
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawString(40, y, "Symbol")
+    pdf.drawString(100, y, "Acquired")
+    pdf.drawString(180, y, "Sold")
+    pdf.drawString(250, y, "Qty")
+    pdf.drawString(300, y, "Gain/Loss")
+    y -= 12
+    pdf.line(40, y, 560, y)
+    y -= 12
+
+    pdf.setFont("Helvetica", 9)
+    for item in data["gains"]:
+        if y < 40:
+            pdf.showPage()
+            y = height - 40
+            pdf.setFont("Helvetica", 9)
+
+        pdf.drawString(40, y, str(item["symbol"]))
+        pdf.drawString(100, y, item["purchase_date"].date().isoformat())
+        pdf.drawString(180, y, item["sale_date"].date().isoformat())
+        pdf.drawString(250, y, f"{item['quantity']:.2f}")
+        pdf.drawString(300, y, f"{item['gain_loss']:.2f}")
+        y -= 14
+
+    pdf.save()
+    buffer.seek(0)
+
+    return StreamingResponse(
+        buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=tax_report_{year}.pdf"},
     )

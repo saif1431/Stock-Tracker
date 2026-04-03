@@ -65,6 +65,8 @@ class Settings:
     ALGORITHM: str = os.getenv("ALGORITHM", "HS256")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
     ADMIN_PRODUCTION_PASSWORD: str = os.getenv("ADMIN_PRODUCTION_PASSWORD", "")
+    ALERT_MONITOR_ENABLED: bool = _parse_bool(os.getenv("ALERT_MONITOR_ENABLED"), True)
+    ALERT_MONITOR_INTERVAL_SECONDS: int = int(os.getenv("ALERT_MONITOR_INTERVAL_SECONDS", "30"))
 
     @property
     def is_production(self) -> bool:

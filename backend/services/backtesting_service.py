@@ -29,6 +29,8 @@ def run_sma_backtest(
     short_window: int,
     long_window: int,
     initial_capital: float,
+    fee_pct: float = 0.0,
+    slippage_bps: float = 0.0,
 ) -> dict:
     symbol = symbol.upper()
 
@@ -60,6 +62,8 @@ def run_sma_backtest(
     trades = []
     trade_pnls = []
     open_trade_cost = None
+    slippage_rate = max(0.0, slippage_bps) / 10000.0
+    fee_rate = max(0.0, fee_pct) / 100.0
 
     prev_signal = None
 
@@ -72,18 +76,24 @@ def run_sma_backtest(
             signal = "buy" if short_sma > long_sma else "sell"
 
             if signal == "buy" and prev_signal != "buy" and shares == 0:
-                shares = cash / price if price > 0 else 0.0
-                cost = shares * price
+                execution_price = price * (1 + slippage_rate)
+                shares = cash / execution_price if execution_price > 0 else 0.0
+                gross_cost = shares * execution_price
+                fees = gross_cost * fee_rate
+                cost = gross_cost + fees
                 cash -= cost
                 open_trade_cost = cost
-                trades.append({"date": rows[i]["date"], "side": "buy", "price": round(price, 2), "shares": round(shares, 4)})
+                trades.append({"date": rows[i]["date"], "side": "buy", "price": round(execution_price, 2), "shares": round(shares, 4), "fees": round(fees, 2)})
 
             elif signal == "sell" and prev_signal == "buy" and shares > 0:
-                proceeds = shares * price
+                execution_price = price * (1 - slippage_rate)
+                gross_proceeds = shares * execution_price
+                fees = gross_proceeds * fee_rate
+                proceeds = gross_proceeds - fees
                 cash += proceeds
                 if open_trade_cost is not None:
                     trade_pnls.append(proceeds - open_trade_cost)
-                trades.append({"date": rows[i]["date"], "side": "sell", "price": round(price, 2), "shares": round(shares, 4)})
+                trades.append({"date": rows[i]["date"], "side": "sell", "price": round(execution_price, 2), "shares": round(shares, 4), "fees": round(fees, 2)})
                 shares = 0.0
                 open_trade_cost = None
 
@@ -122,6 +132,8 @@ def run_sma_backtest(
         "parameters": {
             "short_window": short_window,
             "long_window": long_window,
+            "fee_pct": round(fee_pct, 4),
+            "slippage_bps": round(slippage_bps, 2),
         },
         "initial_capital": round(initial_capital, 2),
         "final_capital": round(final_capital, 2),

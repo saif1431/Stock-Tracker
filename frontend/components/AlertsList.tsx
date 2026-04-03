@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { stockService } from "@/services/stockService"
+import { useAuth } from "@/hooks/useAuth"
 
 interface Alert {
   id: number
@@ -22,6 +23,7 @@ interface AlertsListProps {
 }
 
 export function AlertsList({ refreshTrigger }: AlertsListProps) {
+  const { user } = useAuth()
   const [alerts, setAlerts] = useState<Alert[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -33,10 +35,42 @@ export function AlertsList({ refreshTrigger }: AlertsListProps) {
   useEffect(() => {
     // Initial fetch when component mounts
     fetchAlerts()
-    // Polling disabled to prevent server overload
-    // Alerts will refresh only on user actions or manual refresh
     return undefined
   }, [])
+
+  useEffect(() => {
+    if (!user?.id) return
+
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    const defaultApiUrl =
+      process.env.NODE_ENV === 'production'
+        ? 'https://stock-tracker.fastapicloud.dev'
+        : 'http://localhost:8000'
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || defaultApiUrl
+    const host = apiUrl.replace(/^https:\/\//, 'wss://').replace(/^http:\/\//, 'ws://')
+    const socketUrl = `${host}/ws/alerts/${user.id}`
+
+    const socket = new WebSocket(socketUrl)
+    socket.onmessage = () => {
+      fetchAlerts()
+    }
+    socket.onerror = () => {
+      // Keep UI working even if socket fails.
+    }
+
+    const pingTimer = setInterval(() => {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send('ping')
+      }
+    }, 15000)
+
+    return () => {
+      clearInterval(pingTimer)
+      if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) {
+        socket.close()
+      }
+    }
+  }, [user?.id])
 
   const fetchAlerts = async () => {
     try {

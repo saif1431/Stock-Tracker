@@ -3,6 +3,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 from database.database import SessionLocal
 from services.stock_service import get_daily_stock_data
+from services.realtime_service import alert_ws_manager
 
 router = APIRouter(prefix="/ws", tags=["websockets"])
 
@@ -41,3 +42,16 @@ async def websocket_stock_endpoint(websocket: WebSocket, symbol: str):
         manager.disconnect(websocket)
     finally:
         db.close()
+
+
+@router.websocket("/alerts/{user_id}")
+async def websocket_alerts_endpoint(websocket: WebSocket, user_id: int):
+    await alert_ws_manager.connect(websocket, user_id)
+    try:
+        # Keep socket alive and allow client ping messages.
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        alert_ws_manager.disconnect(websocket, user_id)
+    except Exception:
+        alert_ws_manager.disconnect(websocket, user_id)

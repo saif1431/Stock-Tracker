@@ -17,13 +17,7 @@ import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Toast, useToast } from "@/components/ui/Toast"
 import { MarketSummaryBar } from "@/components/MarketSummaryBar"
-
-interface WatchlistItem {
-  symbol: string
-  price: number
-  change: number
-  changePercent: number
-}
+import { useAppStore } from "@/lib/stores/useAppStore"
 
 interface ApiError {
   response?: {
@@ -79,8 +73,12 @@ export default function Dashboard() {
   const [currentStock, setCurrentStock] = useState<string>("AAPL")
   const [chartData, setChartData] = useState<ChartData[]>(MOCK_CHART_DATA)
   const [isLoading, setIsLoading] = useState(false)
-  const [watchlist, setWatchlist] = useState<WatchlistItem[]>([])
-  const [portfolio, setPortfolio] = useState<PortfolioItem[]>([])
+  const watchlist = useAppStore((s) => s.watchlist)
+  const portfolio = useAppStore((s) => s.portfolio)
+  const setWatchlist = useAppStore((s) => s.setWatchlist)
+  const setPortfolio = useAppStore((s) => s.setPortfolio)
+  const removeWatchlistItem = useAppStore((s) => s.removeWatchlistItem)
+  const removePortfolioItem = useAppStore((s) => s.removePortfolioItem)
   const [showCreateAlertDialog, setShowCreateAlertDialog] = useState(false)
   const [alertsRefreshTrigger, setAlertsRefreshTrigger] = useState(0)
 
@@ -100,7 +98,7 @@ export default function Dashboard() {
           changePercent: item.daily_change_percent || 0
         })))
         
-        setPortfolio(portfolioData)
+        setPortfolio(portfolioData as PortfolioItem[])
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error)
       }
@@ -159,7 +157,7 @@ export default function Dashboard() {
   const handleRemoveFromWatchlist = useCallback(async (symbol: string) => {
     try {
       await stockService.removeFromWatchlist(symbol)
-      setWatchlist((prev) => prev.filter((item) => item.symbol !== symbol))
+      removeWatchlistItem(symbol)
       showToast(`${symbol} removed from watchlist`, "success")
     } catch (error: unknown) {
       const errorMessage = getErrorMessage(error)
@@ -170,7 +168,7 @@ export default function Dashboard() {
   const handleRemoveFromPortfolio = useCallback(async (symbol: string) => {
     try {
       await stockService.removeFromPortfolio(symbol)
-      setPortfolio((prev) => prev.filter((item) => item.symbol !== symbol))
+      removePortfolioItem(symbol)
       showToast(`${symbol} sold/removed from portfolio`, "success")
     } catch (error: unknown) {
       const errorMessage = getErrorMessage(error)
