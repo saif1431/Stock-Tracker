@@ -98,7 +98,7 @@ export default function Dashboard() {
           changePercent: item.daily_change_percent || 0
         })))
         
-        setPortfolio(portfolioData as PortfolioItem[])
+        setPortfolio(portfolioData)
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error)
       }

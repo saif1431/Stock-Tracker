@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import type { PortfolioItem } from '@/components/PortfolioSection'
 
 export interface AppWatchlistItem {
   symbol: string
@@ -7,21 +8,11 @@ export interface AppWatchlistItem {
   changePercent: number
 }
 
-export interface AppPortfolioItem {
-  id?: number
-  symbol: string
-  quantity: number
-  average_price: number
-  current_price: number
-  profit_loss: number
-  profit_loss_percent: number
-}
-
 interface AppState {
   watchlist: AppWatchlistItem[]
-  portfolio: AppPortfolioItem[]
+  portfolio: PortfolioItem[]
   setWatchlist: (watchlist: AppWatchlistItem[]) => void
-  setPortfolio: (portfolio: AppPortfolioItem[]) => void
+  setPortfolio: (portfolio: PortfolioItem[]) => void
   upsertWatchlistItem: (item: AppWatchlistItem) => void
   removeWatchlistItem: (symbol: string) => void
   removePortfolioItem: (symbol: string) => void
